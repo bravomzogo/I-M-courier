@@ -9,8 +9,8 @@ const Pricing = () => {
 
   useEffect(() => {
     Promise.all([
-      axios.get('http://localhost:8000/api/pricing/'),
-      axios.get('http://localhost:8000/api/areas/')
+      axios.get('http://localhost:8000/api/pricing/' && 'https://api-n7hd.onrender.com/api/pricing/'),
+      axios.get('http://localhost:8000/api/areas/' && 'https://api-n7hd.onrender.com/api/areas/')
     ])
       .then(([pricingRes, areasRes]) => {
         setPricing(pricingRes.data)

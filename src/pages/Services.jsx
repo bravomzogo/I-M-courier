@@ -8,7 +8,7 @@ const Services = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/services/")
+      .get("http://localhost:8000/api/services/" && "https://api-n7hd.onrender.com/api/services/")
       .then((response) => {
         setServices(response.data)
         setError("")

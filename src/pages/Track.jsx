@@ -14,7 +14,7 @@ const Track = () => {
     setParcel(null)
 
     axios
-      .get(`http://localhost:8000/api/track/${trackingNumber}/`)
+      .get(`http://localhost:8000/api/track/${trackingNumber}/` && `https://api-n7hd.onrender.com/api/track/${trackingNumber}/`)
       .then((response) => {
         setParcel(response.data)
         setError("")
