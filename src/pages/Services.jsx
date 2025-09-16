@@ -3,18 +3,25 @@ import axios from "axios"
 
 const Services = () => {
   const [services, setServices] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/api/services/" && "https://api-n7hd.onrender.com/api/services/")
-      .then((response) => {
+    const fetchServices = async () => {
+      try {
+        // First try local API
+        let response = await axios.get("http://localhost:8000/api/services/")
         setServices(response.data)
-        setError("")
-      })
-      .catch(() => setError("Failed to load services. Please try again later."))
-      .finally(() => setLoading(false))
+      } catch (err) {
+        try {
+          // If local fails, use remote API
+          let response = await axios.get("https://api-n7hd.onrender.com/api/services/")
+          setServices(response.data)
+        } catch (error) {
+          console.error("Failed to load services from both APIs")
+        }
+      }
+    }
+
+    fetchServices()
   }, [])
 
   return (
@@ -23,16 +30,6 @@ const Services = () => {
         <h2 className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-10">
           Our Services
         </h2>
-
-        {/* Loading */}
-        {loading && (
-          <p className="text-center text-gray-500 font-medium">Loading...</p>
-        )}
-
-        {/* Error */}
-        {error && (
-          <p className="text-center text-red-500 font-medium mb-4">{error}</p>
-        )}
 
         {/* Services List */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -50,7 +47,7 @@ const Services = () => {
         </div>
 
         {/* No services available */}
-        {!loading && services.length === 0 && !error && (
+        {services.length === 0 && (
           <p className="text-center text-gray-500 mt-6">
             No services available at the moment.
           </p>

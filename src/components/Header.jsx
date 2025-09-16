@@ -53,7 +53,7 @@ const Header = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Navigation items with potential dropdowns
+  // Navigation items without dropdowns for About Us and Services
   const navItems = [
     { 
       path: "/", 
@@ -64,23 +64,12 @@ const Header = () => {
     { 
       path: "/about", 
       name: "About Us",
-      icon: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
-      dropdown: [
-        { path: "/about/company", name: "Our Company", icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
-        { path: "/about/team", name: "Our Team", icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" },
-        { path: "/about/values", name: "Our Values", icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" }
-      ]
+      icon: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
     },
     { 
       path: "/services", 
       name: "Services",
-      icon: "M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z",
-      dropdown: [
-        { path: "/services/courier", name: "Courier Services", icon: "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
-        { path: "/services/supply", name: "General Supply", icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" },
-        { path: "/services/logistics", name: "Logistics Solutions", icon: "M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" },
-        { path: "/areas", name: "Service Areas", icon: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z" }
-      ]
+      icon: "M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
     },
     { 
       path: "/book", 
@@ -276,8 +265,6 @@ const Header = () => {
                   <motion.li 
                     key={item.path}
                     className="relative"
-                    onMouseEnter={() => item.dropdown && handleDropdownEnter(index)}
-                    onMouseLeave={handleDropdownLeave}
                     whileHover={{ scale: 1.03 }}
                   >
                     <Link
@@ -325,94 +312,8 @@ const Header = () => {
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
                       </svg>
-                      
                       {item.name}
-                      
-                      {item.dropdown && (
-                        <motion.svg 
-                          className={`ml-1 w-4 h-4 ${
-                            isScrolled 
-                              ? isActive(item.path, item.exact)
-                                ? 'text-primary'
-                                : 'text-gray-500'
-                              : isActive(item.path, item.exact)
-                                ? 'text-white'
-                                : 'text-gray-300'
-                          }`} 
-                          fill="none" 
-                          viewBox="0 0 24 24" 
-                          stroke="currentColor"
-                          animate={{ rotate: activeDropdown === index ? 180 : 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </motion.svg>
-                      )}
                     </Link>
-
-                    {/* Dropdown Menu */}
-                    <AnimatePresence>
-                      {item.dropdown && activeDropdown === index && (
-                        <motion.div 
-                          className={`absolute left-0 mt-2 w-56 rounded-lg shadow-xl z-50 overflow-hidden ${
-                            isScrolled 
-                              ? 'bg-white border border-gray-200' 
-                              : 'bg-gray-800 border border-gray-700'
-                          }`}
-                          style={{
-                            backgroundColor: isScrolled ? colors.light : colors.secondary,
-                            borderColor: isScrolled ? colors.lightGray : colors.secondaryLight
-                          }}
-                          variants={dropdownVariants}
-                          initial="closed"
-                          animate="open"
-                          exit="closed"
-                        >
-                          {item.dropdown.map((subItem) => (
-                            <Link
-                              key={subItem.path}
-                              to={subItem.path}
-                              className={`block px-4 py-3 transition-colors duration-200 border-b ${
-                                isActive(subItem.path)
-                                  ? isScrolled
-                                    ? 'bg-primary bg-opacity-20 text-primary font-medium border-primary border-opacity-20'
-                                    : 'bg-primary text-white font-medium border-primary border-opacity-30'
-                                  : isScrolled
-                                    ? 'text-gray-700 hover:bg-primary hover:bg-opacity-10 border-gray-100'
-                                    : 'text-gray-200 hover:bg-primary hover:bg-opacity-20 border-gray-700'
-                              }`}
-                              style={{
-                                backgroundColor: isActive(subItem.path)
-                                  ? isScrolled
-                                    ? `${colors.primary}20`
-                                    : colors.primary
-                                  : 'transparent',
-                                color: isActive(subItem.path)
-                                  ? isScrolled
-                                    ? colors.primaryDark
-                                    : colors.light
-                                  : isScrolled
-                                    ? colors.dark
-                                    : colors.lightGray,
-                                borderColor: isScrolled ? colors.lightGray : colors.secondaryLight
-                              }}
-                            >
-                              <div className="flex items-center">
-                                <svg 
-                                  className="w-4 h-4 mr-3" 
-                                  fill="none" 
-                                  viewBox="0 0 24 24" 
-                                  stroke="currentColor"
-                                >
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={subItem.icon} />
-                                </svg>
-                                {subItem.name}
-                              </div>
-                            </Link>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
                   </motion.li>
                 ))}
               </ul>
@@ -509,151 +410,43 @@ const Header = () => {
                       key={item.path}
                       variants={itemVariants}
                     >
-                      {item.dropdown ? (
-                        <div className="relative">
-                          <motion.button
-                            onClick={() => setActiveDropdown(activeDropdown === item.path ? null : item.path)}
-                            className={`w-full text-left px-4 py-3 rounded-lg flex items-center justify-between ${
-                              isActive(item.path)
-                                ? isScrolled
-                                  ? 'bg-primary bg-opacity-20 text-primary font-semibold'
-                                  : 'bg-primary text-white font-semibold'
-                                : isScrolled
-                                  ? 'text-gray-800 hover:bg-primary hover:bg-opacity-10'
-                                  : 'text-gray-200 hover:bg-primary hover:bg-opacity-20'
-                            }`}
-                            style={{
-                              backgroundColor: isActive(item.path)
-                                ? isScrolled
-                                  ? `${colors.primary}20`
-                                  : colors.primary
-                                : 'transparent',
-                              color: isActive(item.path)
-                                ? isScrolled
-                                  ? colors.primaryDark
-                                  : colors.light
-                                : isScrolled
-                                  ? colors.dark
-                                  : colors.lightGray
-                            }}
-                            whileHover={{ scale: 1.02 }}
-                          >
-                            <div className="flex items-center">
-                              <svg 
-                                className="w-5 h-5 mr-3" 
-                                fill="none" 
-                                viewBox="0 0 24 24" 
-                                stroke="currentColor"
-                              >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                              </svg>
-                              {item.name}
-                            </div>
-                            <motion.svg 
-                              className="ml-2 w-4 h-4" 
-                              fill="none" 
-                              viewBox="0 0 24 24" 
-                              stroke="currentColor"
-                              animate={{ rotate: activeDropdown === item.path ? 180 : 0 }}
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </motion.svg>
-                          </motion.button>
-                          <AnimatePresence>
-                            {activeDropdown === item.path && (
-                              <motion.div 
-                                className="mt-1 ml-8 space-y-1"
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                {item.dropdown.map((subItem) => (
-                                  <Link
-                                    key={subItem.path}
-                                    to={subItem.path}
-                                    className={`block px-4 py-2.5 rounded-lg text-sm flex items-center ${
-                                      isActive(subItem.path)
-                                        ? isScrolled
-                                          ? 'bg-primary bg-opacity-20 text-primary font-medium'
-                                          : 'bg-primary text-white font-medium'
-                                        : isScrolled
-                                          ? 'text-gray-700 hover:bg-primary hover:bg-opacity-10'
-                                          : 'text-gray-200 hover:bg-primary hover:bg-opacity-20'
-                                    }`}
-                                    style={{
-                                      backgroundColor: isActive(subItem.path)
-                                        ? isScrolled
-                                          ? `${colors.primary}20`
-                                          : colors.primary
-                                        : 'transparent',
-                                      color: isActive(subItem.path)
-                                        ? isScrolled
-                                          ? colors.primaryDark
-                                          : colors.light
-                                        : isScrolled
-                                          ? colors.dark
-                                          : colors.lightGray
-                                    }}
-                                    onClick={() => {
-                                      setMobileMenuOpen(false);
-                                      setActiveDropdown(null);
-                                    }}
-                                  >
-                                    <svg 
-                                      className="w-4 h-4 mr-3" 
-                                      fill="none" 
-                                      viewBox="0 0 24 24" 
-                                      stroke="currentColor"
-                                    >
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={subItem.icon} />
-                                    </svg>
-                                    {subItem.name}
-                                  </Link>
-                                ))}
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      ) : (
-                        <Link
-                          to={item.path}
-                          className={`block px-4 py-3 rounded-lg flex items-center ${
-                            isActive(item.path)
-                              ? isScrolled
-                                ? 'bg-primary bg-opacity-20 text-primary font-semibold'
-                                : 'bg-primary text-white font-semibold'
-                              : isScrolled
-                                ? 'text-gray-800 hover:bg-primary hover:bg-opacity-10'
-                                : 'text-gray-200 hover:bg-primary hover:bg-opacity-20'
-                          }`}
-                          style={{
-                            backgroundColor: isActive(item.path)
-                              ? isScrolled
-                                ? `${colors.primary}20`
-                                : colors.primary
-                              : 'transparent',
-                            color: isActive(item.path)
-                              ? isScrolled
-                                ? colors.primaryDark
-                                : colors.light
-                              : isScrolled
-                                ? colors.dark
-                                : colors.lightGray
-                          }}
-                          onClick={() => setMobileMenuOpen(false)}
+                      <Link
+                        to={item.path}
+                        className={`block px-4 py-3 rounded-lg flex items-center ${
+                          isActive(item.path)
+                            ? isScrolled
+                              ? 'bg-primary bg-opacity-20 text-primary font-semibold'
+                              : 'bg-primary text-white font-semibold'
+                            : isScrolled
+                              ? 'text-gray-800 hover:bg-primary hover:bg-opacity-10'
+                              : 'text-gray-200 hover:bg-primary hover:bg-opacity-20'
+                        }`}
+                        style={{
+                          backgroundColor: isActive(item.path)
+                            ? isScrolled
+                              ? `${colors.primary}20`
+                              : colors.primary
+                            : 'transparent',
+                          color: isActive(item.path)
+                            ? isScrolled
+                              ? colors.primaryDark
+                              : colors.light
+                            : isScrolled
+                              ? colors.dark
+                              : colors.lightGray
+                        }}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <svg 
+                          className="w-5 h-5 mr-3" 
+                          fill="none" 
+                          viewBox="0 0 24 24" 
+                          stroke="currentColor"
                         >
-                          <svg 
-                            className="w-5 h-5 mr-3" 
-                            fill="none" 
-                            viewBox="0 0 24 24" 
-                            stroke="currentColor"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                          </svg>
-                          {item.name}
-                        </Link>
-                      )}
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                        </svg>
+                        {item.name}
+                      </Link>
                     </motion.li>
                   ))}
                 </motion.ul>
