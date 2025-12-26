@@ -485,7 +485,7 @@ const Home = () => {
                 className="text-3xl md:text-4xl font-bold mb-6"
                 style={{ color: colors.dark }}
               >
-                Why Choose Our Courier Service?
+                Why Choose Our Courier Shaibu?
               </h2>
               
               <ul className="space-y-4">
