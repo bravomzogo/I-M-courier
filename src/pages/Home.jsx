@@ -434,7 +434,7 @@ const Home = () => {
         </div>
       </motion.section>
 
-      {/* Features Section */}
+      {/* Features Sectio */}
       <motion.section
         className="py-20"
         style={{ backgroundColor: colors.lightGray }}
