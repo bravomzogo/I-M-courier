@@ -16,8 +16,9 @@ import {
   FaCheckCircle
 } from 'react-icons/fa';
 import { FiArrowRight, FiPackage } from 'react-icons/fi';
+import { useApp } from '../context/AppContext';
 
-// Animation Variants (Pure JavaScript)
+// Animation Variants
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
@@ -61,25 +62,72 @@ const pulseLocation = {
 };
 
 const Home = () => {
-  const colors = {
-    primary: '#E31E24',
-    primaryDark: '#B71C1C',
-    secondary: '#1E3A8A',
-    secondaryLight: '#2563EB',
+  const { darkMode, t } = useApp();
+  
+  // HIGH CONTRAST color schemes - Dark Blue and Red
+  const lightColors = {
+    // Primary - Dark Blue for trust and professionalism
+    primary: '#0D47A1',       // Deep dark blue
+    primaryLight: '#1565C0',  // Lighter blue
+    primaryDark: '#0A3575',   // Darker blue
+    
+    // Secondary - Bright Red for contrast and urgency
+    secondary: '#D32F2F',     // Bright red
+    secondaryLight: '#EF5350',// Light red
+    secondaryDark: '#B71C1C', // Dark red
+    
+    // Backgrounds
     light: '#FFFFFF',
-    dark: '#1F2937',
-    gray: '#6B7280',
-    lightGray: '#F3F4F6',
+    dark: '#212121',          // Very dark gray for high contrast text
+    
+    // Text colors
+    textPrimary: '#212121',   // High contrast dark text
+    textSecondary: '#424242', // Medium contrast text
+    textLight: '#FFFFFF',     // White text for dark backgrounds
+    
+    // UI colors
+    gray: '#757575',
+    lightGray: '#F5F5F5',
+    cardBg: '#FFFFFF',
+    cardBorder: '#E0E0E0',
+    
+    // Gradients
+    heroGradient: 'linear-gradient(135deg, #0D47A1 0%, #1565C0 50%, #1976D2 100%)'
   };
 
-  const videoRef = useRef(null);
-  const { scrollYProgress } = useScroll();
-  const scaleProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
+  const darkColors = {
+    // Primary - Brighter blue for dark mode
+    primary: '#2196F3',       // Bright blue
+    primaryLight: '#42A5F5',  // Lighter blue
+    primaryDark: '#1976D2',   // Darker blue
+    
+    // Secondary - Brighter red for dark mode
+    secondary: '#F44336',     // Bright red
+    secondaryLight: '#EF9A9A',// Light red
+    secondaryDark: '#D32F2F', // Dark red
+    
+    // Backgrounds
+    light: '#121212',         // Very dark background
+    dark: '#FFFFFF',          // White text for maximum contrast
+    
+    // Text colors
+    textPrimary: '#FFFFFF',   // White text for dark mode
+    textSecondary: '#E0E0E0', // Light gray text
+    textLight: '#FFFFFF',     // White text
+    
+    // UI colors
+    gray: '#B0B0B0',
+    lightGray: '#1E1E1E',
+    cardBg: '#1E1E1E',
+    cardBorder: '#333333',
+    
+    // Gradients
+    heroGradient: 'linear-gradient(135deg, #0A3575 0%, #0D47A1 50%, #1565C0 100%)'
+  };
 
+  const colors = darkMode ? darkColors : lightColors;
+
+  const videoRef = useRef(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -93,136 +141,135 @@ const Home = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  return (
-    <div className="w-full overflow-hidden bg-white">
-      {/* Artistic Hero Section */}
-      <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
-        {/* Floating Geometric Shapes */}
-        <motion.div
-          className="absolute top-20 left-10 w-32 h-32 border-4 rounded-full"
-          style={{ borderColor: colors.primary, opacity: 0.2 }}
-          animate={{
-            y: [0, 30, 0],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-20 w-24 h-24 border-4"
-          style={{ borderColor: colors.secondary, opacity: 0.3 }}
-          animate={{
-            y: [0, -20, 0],
-            rotate: [0, -90, -180],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-        />
+  // Services data
+  const services = [
+    { icon: <FaTruck />, titleKey: 'domesticCourier', descKey: 'domesticDesc' },
+    { icon: <FaGlobe />, titleKey: 'intlShipping', descKey: 'intlDesc' },
+    { icon: <FaPlane />, titleKey: 'airFreight', descKey: 'airDesc' },
+    { icon: <FaWarehouse />, titleKey: 'warehousing', descKey: 'warehouseDesc' },
+    { icon: <FaBoxOpen />, titleKey: 'packaging', descKey: 'packagingDesc' },
+    { icon: <FaShieldAlt />, titleKey: 'clearing', descKey: 'clearingDesc' }
+  ];
 
-        {/* Main Content Container */}
-        <div className="container mx-auto px-6 relative z-10 min-h-screen flex items-center">
-          <div className="grid lg:grid-cols-2 gap-12 items-center w-full py-20">
+  // Stats data
+  const stats = [
+    { value: '50+', labelKey: 'yearsExp' },
+    { value: '500+', labelKey: 'dailyShips' },
+    { value: '24/7', labelKey: 'support' }
+  ];
+
+  return (
+    <div className="w-full overflow-hidden transition-colors duration-300" style={{ backgroundColor: colors.light }}>
+      {/* Hero Section */}
+      <section 
+        className="relative min-h-screen overflow-hidden transition-colors duration-300"
+        style={{ 
+          background: colors.heroGradient
+        }}
+      >
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `linear-gradient(to right, ${colors.textLight} 1px, transparent 1px),
+                             linear-gradient(to bottom, ${colors.textLight} 1px, transparent 1px)`,
+            backgroundSize: '50px 50px'
+          }}></div>
+        </div>
+
+        <div className="container mx-auto px-4 sm:px-6 relative z-10 min-h-screen flex items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full py-16 lg:py-20">
             
             {/* Left Content */}
             <motion.div
               variants={fadeInLeft}
               initial="hidden"
               animate="visible"
+              className="text-center lg:text-left"
             >
               {/* Small Badge */}
               <motion.div
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 backdrop-blur-sm"
-                style={{ backgroundColor: colors.primary + '20', border: `1px solid ${colors.primary}` }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
+                style={{ 
+                  backgroundColor: `${colors.textLight}20`, 
+                  border: `1px solid ${colors.textLight}40`,
+                  color: colors.textLight
+                }}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.3, type: "spring" }}
               >
-                <FiPackage style={{ color: colors.primary }} />
-                <span className="text-sm font-semibold" style={{ color: colors.light }}>
-                  Trusted Since 2018
+                <FiPackage />
+                <span className="text-sm font-semibold">
+                  {t.trustedSince}
                 </span>
               </motion.div>
 
               {/* Main Heading */}
-              <h1 className="text-5xl md:text-7xl font-black mb-6 leading-none">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
                   className="overflow-hidden"
                 >
-                  <span className="inline-block" style={{ color: colors.light }}>
-                    I&M
+                  <span className="block" style={{ color: colors.textLight }}>
+                    I&M COURIER
                   </span>
-                  <span className="inline-block ml-4" style={{
-                    color: colors.primary,
-                    textShadow: `0 0 40px ${colors.primary}80`
+                  <span className="block mt-2" style={{
+                    color: colors.secondary,
+                    textShadow: `0 0 20px ${colors.secondary}40`
                   }}>
-                    COURIER
+                    GENERAL SUPPLIER
                   </span>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 }}
-                  className="text-2xl md:text-3xl font-light mt-2 tracking-widest"
-                  style={{ color: colors.secondaryLight }}
-                >
-                  GENERAL SUPPLIER
                 </motion.div>
               </h1>
 
               {/* Subtitle */}
               <motion.p
-                className="text-xl md:text-2xl mb-8 leading-relaxed"
-                style={{ color: colors.lightGray }}
+                className="text-lg sm:text-xl md:text-2xl mb-8 leading-relaxed"
+                style={{ color: `${colors.textLight}90` }}
                 variants={fadeInUp}
                 initial="hidden"
                 animate="visible"
               >
-                Revolutionizing logistics across Tanzania with{' '}
-                <span className="font-bold" style={{ color: colors.primary }}>
-                  speed, precision
+                {t.revolutionizing}{' '}
+                <span className="font-bold" style={{ color: colors.secondary }}>
+                  {t.speedPrecision}
                 </span>
-                {' '}and{' '}
-                <span className="font-bold" style={{ color: colors.primary }}>
-                  reliability
+                {' '}{t.and}{' '}
+                <span className="font-bold" style={{ color: colors.secondary }}>
+                  {t.reliability}
                 </span>
               </motion.p>
 
               {/* Stats Mini Cards */}
               <motion.div
-                className="grid grid-cols-3 gap-4 mb-8"
+                className="grid grid-cols-3 gap-3 sm:gap-4 mb-8"
                 variants={staggerContainer}
                 initial="hidden"
                 animate="visible"
               >
-                {[
-                  { value: '50+', label: 'Years Exp.' },
-                  { value: '500+', label: 'Daily Ships' },
-                  { value: '24/7', label: 'Support' }
-                ].map((stat, i) => (
+                {stats.map((stat, i) => (
                   <motion.div
                     key={i}
-                    className="p-4 rounded-lg backdrop-blur-md border"
+                    className="p-3 sm:p-4 rounded-xl backdrop-blur-sm border"
                     style={{
-                      backgroundColor: colors.light + '10',
-                      borderColor: colors.primary + '30'
+                      backgroundColor: `${colors.textLight}15`,
+                      borderColor: `${colors.textLight}30`,
+                      color: colors.textLight
                     }}
                     variants={fadeInUp}
-                    whileHover={{ scale: 1.05, borderColor: colors.primary }}
+                    whileHover={{ 
+                      scale: 1.05, 
+                      borderColor: colors.secondary,
+                      backgroundColor: `${colors.secondary}20`
+                    }}
                   >
-                    <div className="text-2xl font-bold" style={{ color: colors.primary }}>
+                    <div className="text-xl sm:text-2xl font-bold" style={{ color: colors.secondary }}>
                       {stat.value}
                     </div>
-                    <div className="text-xs" style={{ color: colors.lightGray }}>
-                      {stat.label}
+                    <div className="text-xs sm:text-sm opacity-90">
+                      {t[stat.labelKey]}
                     </div>
                   </motion.div>
                 ))}
@@ -230,7 +277,7 @@ const Home = () => {
 
               {/* CTA Buttons */}
               <motion.div
-                className="flex flex-wrap gap-4"
+                className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
                 variants={fadeInUp}
                 initial="hidden"
                 animate="visible"
@@ -239,33 +286,34 @@ const Home = () => {
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Link
                     to="/track"
-                    className="group flex items-center gap-3 px-8 py-4 rounded-full font-bold shadow-2xl transition-all duration-300"
+                    className="group inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold shadow-lg hover:shadow-xl transition-all duration-300"
                     style={{
-                      backgroundColor: colors.primary,
-                      color: colors.light
+                      backgroundColor: colors.secondary,
+                      color: colors.textLight
                     }}
                   >
-                    Track Package
+                    {t.trackPackage}
                     <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Link
                     to="/contact"
-                    className="flex items-center gap-3 px-8 py-4 rounded-full font-bold border-2 backdrop-blur-sm transition-all duration-300 hover:bg-white hover:text-gray-900"
+                    className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold border-2 hover:shadow-xl transition-all duration-300"
                     style={{
-                      borderColor: colors.light,
-                      color: colors.light
+                      borderColor: colors.textLight,
+                      color: colors.textLight,
+                      backgroundColor: 'transparent'
                     }}
                   >
-                    Contact Us
+                    {t.contactUs}
                   </Link>
                 </motion.div>
               </motion.div>
 
               {/* Social Links */}
               <motion.div
-                className="flex gap-4 mt-8"
+                className="flex justify-center lg:justify-start gap-3 sm:gap-4 mt-8"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.4 }}
@@ -279,12 +327,16 @@ const Home = () => {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-12 h-12 flex items-center justify-center rounded-full border-2 backdrop-blur-sm transition-all duration-300"
-                    style={{ borderColor: colors.light + '40', color: colors.light }}
+                    className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full border transition-all duration-300"
+                    style={{ 
+                      borderColor: `${colors.textLight}40`, 
+                      color: colors.textLight,
+                      backgroundColor: 'transparent'
+                    }}
                     whileHover={{
                       scale: 1.1,
-                      borderColor: colors.primary,
-                      backgroundColor: colors.primary
+                      borderColor: colors.secondary,
+                      backgroundColor: colors.secondary
                     }}
                   >
                     {social.icon}
@@ -293,7 +345,7 @@ const Home = () => {
               </motion.div>
             </motion.div>
 
-            {/* Right Side - Video with Artistic Frame */}
+            {/* Right Side - Video/Image */}
             <motion.div
               variants={scaleIn}
               initial="hidden"
@@ -302,18 +354,14 @@ const Home = () => {
                 x: mousePosition.x,
                 y: mousePosition.y,
               }}
-              className="relative"
+              className="relative mt-8 lg:mt-0"
             >
-              {/* Decorative Blur Background */}
-              <div className="absolute -inset-4 rounded-3xl" style={{
-                background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
-                opacity: 0.3,
-                filter: 'blur(20px)'
-              }}></div>
-
-              <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl border-4" style={{ borderColor: colors.primary }}>
-                {/* Video */}
-                <div className="relative w-full h-[500px] overflow-hidden">
+              <div className="relative z-10 rounded-2xl lg:rounded-3xl overflow-hidden shadow-2xl" style={{ 
+                border: `3px solid ${colors.secondary}`,
+                backgroundColor: colors.cardBg
+              }}>
+                {/* Video/Image Container */}
+                <div className="relative w-full h-[300px] sm:h-[400px] lg:h-[500px] overflow-hidden">
                   <video
                     ref={videoRef}
                     className="absolute top-0 left-0 w-full h-full object-cover"
@@ -324,125 +372,124 @@ const Home = () => {
                     controls={false}
                   >
                     <source src="/hero-video.mp4" type="video/mp4" />
-                    Your browser does not support the video tag.
+                    {/* Fallback image */}
+                    <img 
+                      src="https://images.pexels.com/photos/4483775/pexels-photo-4483775.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
+                      alt="Logistics and delivery"
+                      className="w-full h-full object-cover"
+                    />
                   </video>
 
-                  {/* Video Overlay Gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-transparent to-slate-900/20"></div>
+                  {/* Overlay Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                 </div>
 
-                {/* Pulsing Location Banner */}
+                {/* Location Badge */}
                 <motion.div
                   variants={pulseLocation}
                   initial={{ opacity: 0, y: 20 }}
                   animate="visible"
-                  className="absolute bottom-6 left-6 right-6 p-4 rounded-xl backdrop-blur-md border"
+                  className="absolute bottom-4 left-4 right-4 p-3 sm:p-4 rounded-xl backdrop-blur-sm border"
                   style={{
-                    backgroundColor: colors.light + '20',
-                    borderColor: colors.primary + '50'
+                    backgroundColor: `${colors.primary}95`,
+                    borderColor: colors.secondary,
+                    color: colors.textLight
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.primary }}>
-                      <FaMapMarkerAlt style={{ color: colors.light }} />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center"
+                      style={{ 
+                        backgroundColor: colors.secondary,
+                        color: colors.textLight 
+                      }}
+                    >
+                      <FaMapMarkerAlt />
                     </div>
                     <div>
-                      <p className="font-bold" style={{ color: colors.light }}>Ubungo Urafiki</p>
-                      <p className="text-sm" style={{ color: colors.lightGray }}>Dar es Salaam, Tanzania</p>
+                      <p className="font-bold text-sm sm:text-base">Ubungo Urafiki</p>
+                      <p className="text-xs sm:text-sm opacity-90">Dar es Salaam, Tanzania</p>
                     </div>
                   </div>
                 </motion.div>
               </div>
-
-              {/* Corner Accents */}
-              <div className="absolute -top-6 -right-6 w-24 h-24 border-t-4 border-r-4 rounded-tr-3xl" style={{ borderColor: colors.primary }}></div>
-              <div className="absolute -bottom-6 -left-6 w-24 h-24 border-b-4 border-l-4 rounded-bl-3xl" style={{ borderColor: colors.secondary }}></div>
             </motion.div>
           </div>
         </div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <div className="w-6 h-10 border-2 rounded-full flex items-start justify-center p-2" style={{ borderColor: colors.light }}>
-            <motion.div
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: colors.primary }}
-              animate={{ y: [0, 12, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-          </div>
-        </motion.div>
       </section>
 
       {/* Services Grid */}
-      <section className="py-20 bg-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/3 h-full opacity-5" style={{
-          background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`
-        }}></div>
-
-        <div className="container mx-auto px-6 relative z-10">
+      <section className="py-16 lg:py-20 relative overflow-hidden transition-colors duration-300" style={{ backgroundColor: colors.light }}>
+        <div className="container mx-auto px-4 sm:px-6 relative z-10">
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-12 lg:mb-16"
             variants={fadeInUp}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-100px" }}
           >
             <motion.div
-              className="inline-block px-4 py-2 rounded-full mb-4"
-              style={{ backgroundColor: colors.primary + '20', color: colors.primary }}
+              className="inline-block px-4 py-2 rounded-full mb-4 transition-colors duration-300"
+              style={{ 
+                backgroundColor: `${colors.primary}10`, 
+                color: colors.primary,
+                border: `1px solid ${colors.primary}20`
+              }}
               initial={{ scale: 0 }}
               whileInView={{ scale: 1 }}
               viewport={{ once: true }}
             >
-              <span className="font-semibold">What We Offer</span>
+              <span className="font-semibold">{t.whatWeOffer}</span>
             </motion.div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: colors.dark }}>
-              Comprehensive <span style={{ color: colors.primary }}>Logistics Solutions</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 transition-colors duration-300" style={{ color: colors.textPrimary }}>
+              {t.comprehensive}{' '}<span style={{ color: colors.primary }}>{t.logisticsSolutions}</span>
             </h2>
-            <p className="text-lg max-w-2xl mx-auto" style={{ color: colors.gray }}>
-              From local deliveries to international freight, we've got you covered
+            <p className="text-base sm:text-lg lg:text-xl max-w-2xl mx-auto transition-colors duration-300" style={{ color: colors.textSecondary }}>
+              {t.servicesDesc}
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { icon: <FaTruck />, title: 'Domestic Courier', desc: 'Same-day and next-day delivery across Tanzania' },
-              { icon: <FaGlobe />, title: 'International Shipping', desc: 'Worldwide courier with customs support' },
-              { icon: <FaPlane />, title: 'Express Air Freight', desc: 'Urgent packages by air to major cities' },
-              { icon: <FaWarehouse />, title: 'Warehousing', desc: 'Secure storage and inventory management' },
-              { icon: <FaBoxOpen />, title: 'Packaging & Removal', desc: 'Complete relocation services' },
-              { icon: <FaShieldAlt />, title: 'Clearing & Forwarding', desc: 'Customs clearance for all freight types' }
-            ].map((service, i) => (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((service, i) => (
               <motion.div
                 key={i}
-                className="group relative p-8 rounded-2xl bg-white border-2 transition-all duration-300 hover:shadow-2xl"
-                style={{ borderColor: colors.lightGray }}
+                className="group relative p-6 rounded-2xl transition-all duration-300 hover:shadow-2xl"
+                style={{ 
+                  backgroundColor: colors.cardBg,
+                  border: `2px solid ${colors.cardBorder}`,
+                  color: colors.textPrimary
+                }}
                 variants={fadeInUp}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "-100px" }}
                 transition={{ delay: i * 0.1 }}
                 whileHover={{
                   borderColor: colors.primary,
-                  y: -5
+                  y: -8,
+                  boxShadow: `0 20px 40px ${colors.primary}20`
                 }}
               >
-                <div className="text-4xl mb-4 transition-transform group-hover:scale-110" style={{ color: i % 2 === 0 ? colors.primary : colors.secondary }}>
-                  {service.icon}
+                {/* Icon Container */}
+                <div className="w-14 h-14 rounded-xl mb-4 flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                  style={{ 
+                    backgroundColor: `${colors.primary}10`,
+                    color: colors.primary
+                  }}
+                >
+                  <div className="text-2xl">
+                    {service.icon}
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold mb-2" style={{ color: colors.dark }}>
-                  {service.title}
-                </h3>
-                <p style={{ color: colors.gray }}>{service.desc}</p>
                 
+                <h3 className="text-xl font-bold mb-3 transition-colors duration-300" style={{ color: colors.textPrimary }}>
+                  {t[service.titleKey]}
+                </h3>
+                <p className="transition-colors duration-300" style={{ color: colors.textSecondary }}>{t[service.descKey]}</p>
+                
+                {/* Hover Indicator */}
                 <motion.div
                   className="absolute bottom-0 left-0 h-1 rounded-full"
-                  style={{ backgroundColor: colors.primary }}
+                  style={{ backgroundColor: colors.secondary }}
                   initial={{ width: 0 }}
                   whileHover={{ width: '100%' }}
                 />
@@ -453,22 +500,39 @@ const Home = () => {
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-20" style={{ backgroundColor: colors.lightGray }}>
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <section className="py-16 lg:py-20 transition-colors duration-300" style={{ backgroundColor: colors.lightGray }}>
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <motion.div
               variants={fadeInLeft}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-100px" }}
             >
-              <div className="relative">
-                <div className="absolute -inset-4 rounded-3xl opacity-20" style={{ backgroundColor: colors.primary }}></div>
+              <div className="relative rounded-2xl lg:rounded-3xl overflow-hidden shadow-2xl border-2" style={{ borderColor: colors.primary }}>
                 <img
-                  src="https://images.pexels.com/photos/8293778/pexels-photo-8293778.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                  alt="Delivery service"
-                  className="relative rounded-3xl shadow-2xl w-full h-auto"
+                  src="https://images.pexels.com/photos/4483775/pexels-photo-4483775.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                  alt="Professional logistics team"
+                  className="w-full h-auto object-cover"
                 />
+                {/* Stats Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-6 backdrop-blur-sm" 
+                  style={{ 
+                    backgroundColor: `${colors.primary}95`,
+                    color: colors.textLight
+                  }}
+                >
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">50+</div>
+                      <div className="text-sm opacity-90">Years Experience</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">100%</div>
+                      <div className="text-sm opacity-90">Client Satisfaction</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
 
@@ -476,10 +540,10 @@ const Home = () => {
               variants={fadeInRight}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-100px" }}
             >
-              <h2 className="text-4xl font-bold mb-6" style={{ color: colors.dark }}>
-                Why <span style={{ color: colors.primary }}>I&M Courier</span>?
+              <h2 className="text-3xl sm:text-4xl font-bold mb-6 transition-colors duration-300" style={{ color: colors.textPrimary }}>
+                {t.whyChooseUs}{' '}<span style={{ color: colors.primary }}>{t.companyName}</span>?
               </h2>
               
               <motion.div 
@@ -489,35 +553,45 @@ const Home = () => {
                 whileInView="visible"
                 viewport={{ once: true }}
               >
-                {[
-                  'Advanced tracking system with real-time updates',
-                  'Dedicated account manager for each client',
-                  'Receipt confirmation through HCS System',
-                  '50+ fleet vehicles across Tanzania',
-                  'Services available 7 days a week',
-                  'Over 50 years combined expertise'
-                ].map((item, i) => (
+                {t.features.map((item, i) => (
                   <motion.div
                     key={i}
-                    className="flex items-center gap-3 p-4 rounded-lg bg-white shadow-sm"
+                    className="flex items-start gap-4 p-4 rounded-xl transition-colors duration-300"
+                    style={{ 
+                      backgroundColor: colors.cardBg,
+                      border: `1px solid ${colors.cardBorder}`,
+                      color: colors.textPrimary
+                    }}
                     variants={fadeInUp}
-                    whileHover={{ x: 5 }}
+                    whileHover={{ 
+                      x: 5,
+                      borderColor: colors.secondary,
+                      boxShadow: `0 10px 25px ${colors.secondary}20`
+                    }}
                   >
-                    <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.primary }}>
-                      <FaCheckCircle className="text-white text-sm" />
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-1"
+                      style={{ 
+                        backgroundColor: colors.secondary,
+                        color: colors.textLight
+                      }}
+                    >
+                      <FaCheckCircle className="text-sm" />
                     </div>
-                    <span style={{ color: colors.dark }}>{item}</span>
+                    <span className="transition-colors duration-300">{item}</span>
                   </motion.div>
                 ))}
               </motion.div>
 
-              <motion.div className="mt-8" whileHover={{ scale: 1.02 }}>
+              <motion.div className="mt-8" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   to="/about"
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold shadow-lg transition-all duration-300"
-                  style={{ backgroundColor: colors.secondary, color: colors.light }}
+                  className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+                  style={{ 
+                    backgroundColor: colors.secondary,
+                    color: colors.textLight
+                  }}
                 >
-                  Learn More About Us
+                  {t.learnMore}
                   <FiArrowRight />
                 </Link>
               </motion.div>
@@ -527,40 +601,44 @@ const Home = () => {
       </section>
 
       {/* Contact CTA */}
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0" style={{
-          background: `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})`
+      <section className="relative py-16 lg:py-20 overflow-hidden transition-colors duration-300">
+        <div className="absolute inset-0 transition-colors duration-300" style={{
+          background: `linear-gradient(135deg, ${colors.primaryDark}, ${colors.secondary})`
         }}></div>
         
-        <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, white 10px, white 20px)'
-        }}></div>
+        {/* Subtle Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(${colors.textLight} 1px, transparent 1px)`,
+            backgroundSize: '30px 30px'
+          }}></div>
+        </div>
 
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
+        <div className="container mx-auto px-4 sm:px-6 relative z-10">
+          <div className="max-w-3xl mx-auto text-center">
             <motion.h2
-              className="text-4xl md:text-5xl font-bold mb-6"
-              style={{ color: colors.light }}
+              className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 transition-colors duration-300"
+              style={{ color: colors.textLight }}
               variants={fadeInUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-100px" }}
             >
-              Ready to Ship with Us?
+              {t.readyToShip}
             </motion.h2>
             <motion.p
-              className="text-xl mb-8"
-              style={{ color: colors.lightGray }}
+              className="text-lg sm:text-xl mb-8 transition-colors duration-300"
+              style={{ color: `${colors.textLight}95` }}
               variants={fadeInUp}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
             >
-              Join hundreds of satisfied customers across Tanzania
+              {t.joinCustomers}
             </motion.p>
 
             <motion.div
-              className="flex flex-wrap justify-center gap-4"
+              className="flex flex-col sm:flex-row justify-center gap-4"
               variants={fadeInUp}
               initial="hidden"
               whileInView="visible"
@@ -568,35 +646,51 @@ const Home = () => {
             >
               <motion.a
                 href="tel:+255693212091"
-                className="flex items-center gap-3 px-8 py-4 rounded-full font-bold shadow-2xl"
-                style={{ backgroundColor: colors.light, color: colors.primary }}
-                whileHover={{ scale: 1.05 }}
+                className="inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+                style={{ 
+                  backgroundColor: colors.textLight, 
+                  color: colors.primary,
+                  border: `2px solid ${colors.textLight}`
+                }}
+                whileHover={{ 
+                  scale: 1.05,
+                  backgroundColor: colors.secondary,
+                  color: colors.textLight
+                }}
                 whileTap={{ scale: 0.95 }}
               >
                 <FaPhoneAlt />
-                +255 693 212 091
+                <span className="font-semibold">+255 693 212 091</span>
               </motion.a>
               <motion.a
                 href="mailto:issaimcourier@gmail.com"
-                className="flex items-center gap-3 px-8 py-4 rounded-full font-bold border-2 backdrop-blur-sm hover:bg-white hover:text-gray-900"
-                style={{ borderColor: colors.light, color: colors.light }}
-                whileHover={{ scale: 1.05 }}
+                className="inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold border-2 hover:shadow-xl transition-all duration-300"
+                style={{ 
+                  borderColor: colors.textLight, 
+                  color: colors.textLight,
+                  backgroundColor: 'transparent'
+                }}
+                whileHover={{ 
+                  scale: 1.05,
+                  backgroundColor: colors.textLight,
+                  color: colors.secondary
+                }}
                 whileTap={{ scale: 0.95 }}
               >
                 <FaEnvelope />
-                Email Us
+                <span className="font-semibold">{t.emailUs}</span>
               </motion.a>
             </motion.div>
 
             <motion.p
-              className="mt-8 text-lg"
-              style={{ color: colors.lightGray }}
+              className="mt-8 text-base sm:text-lg transition-colors duration-300"
+              style={{ color: `${colors.textLight}90` }}
               variants={fadeInUp}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
             >
-              Tunahudumia ndani ya Dar es Salaam na mikoani
+              {t.serving}
             </motion.p>
           </div>
         </div>

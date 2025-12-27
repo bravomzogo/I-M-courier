@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
+import { AppProvider } from './context/AppContext'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import LiveChat from './components/LiveChat'
@@ -12,22 +13,24 @@ import Contact from './pages/Contact'
 
 function App() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/book" element={<Book />} />
-          <Route path="/track" element={<Track />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/contact" element={<Contact />} />
-        </Routes>
-      </main>
-      <LiveChat />
-      <Footer />
-    </div>
+    <AppProvider>
+      <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+        <Header />
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/book" element={<Book />} />
+            <Route path="/track" element={<Track />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/contact" element={<Contact />} />
+          </Routes>
+        </main>
+        <LiveChat />
+        <Footer />
+      </div>
+    </AppProvider>
   )
 }
 
