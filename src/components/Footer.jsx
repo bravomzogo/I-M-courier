@@ -1,259 +1,536 @@
-import { motion } from 'framer-motion';
-import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaClock, FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { 
+  FaPhoneAlt, 
+  FaEnvelope, 
+  FaMapMarkerAlt, 
+  FaClock,
+  FaTiktok,
+  FaInstagram,
+  FaFacebook,
+  FaTwitter,
+  FaLinkedin,
+  FaTruck,
+  FaShippingFast,
+  FaGlobe,
+  FaShieldAlt
+} from 'react-icons/fa';
+import { useApp } from '../context/AppContext';
 
 const Footer = () => {
-  // Dark theme color scheme (Facebook-like)
-  const colors = {
-    darkBg: '#18191A',       // Dark background
-    darkCard: '#242526',     // Card background
-    darkText: '#E4E6EB',     // Primary text
-    mutedText: '#B0B3B8',    // Secondary text
-    primary: '#2374E1',      // Facebook blue
-    primaryHover: '#3A86E9', // Lighter blue
-    secondary: '#E41E3F',    // Accent red
-    success: '#31A24C',      // Green for success
-    divider: '#3E4042',      // Divider lines
-    highlight: '#3A3B3C'     // Hover states
+  const { darkMode, language, t } = useApp();
+
+  // HIGH CONTRAST color schemes (matching Header/Home)
+  const lightColors = {
+    primary: '#0D47A1',       // Deep dark blue
+    primaryDark: '#0A3575',   // Darker blue
+    secondary: '#D32F2F',     // Bright red
+    light: '#FFFFFF',
+    dark: '#212121',          // Very dark text
+    gray: '#424242',          // Medium gray
+    lightGray: '#F5F5F5',
+    cardBg: '#FFFFFF',
+    textPrimary: '#212121',
+    textSecondary: '#424242',
+    textLight: '#FFFFFF'
   };
 
-  // Footer links data
-  const footerLinks = [
-    {
-      title: 'Quick Links',
-      links: [
-        { name: 'Home', path: '/' },
-        { name: 'About Us', path: '/about' },
-        { name: 'Services', path: '/services' },
-        { name: 'Tracking', path: '/track' },
-        { name: 'Pricing', path: '/pricing' }
-      ]
-    },
-    {
-      title: 'Services',
-      links: [
-        { name: 'Courier Services', path: '/services/courier' },
-        { name: 'General Supply', path: '/services/supply' },
-        { name: 'Logistics', path: '/services/logistics' },
-        { name: 'Express Delivery', path: '/services/express' },
-        { name: 'Warehousing', path: '/services/warehousing' }
-      ]
-    },
-    {
-      title: 'Support',
-      links: [
-        { name: 'Contact Us', path: '/contact' },
-        { name: 'FAQs', path: '/faqs' },
-        { name: 'Privacy Policy', path: '/privacy' },
-        { name: 'Terms of Service', path: '/terms' },
-        { name: 'Shipping Policy', path: '/shipping' }
-      ]
-    }
-  ];
+  const darkColors = {
+    primary: '#2196F3',       // Bright blue
+    primaryDark: '#1976D2',   // Darker blue
+    secondary: '#F44336',     // Bright red
+    light: '#121212',         // Very dark background
+    dark: '#FFFFFF',          // White text
+    gray: '#B0B0B0',          // Light gray
+    lightGray: '#1E1E1E',
+    cardBg: '#1E1E1E',
+    textPrimary: '#FFFFFF',
+    textSecondary: '#E0E0E0',
+    textLight: '#FFFFFF'
+  };
 
-  // Social media links
-  const socialLinks = [
-    { icon: <FaFacebook className="text-xl" />, path: 'https://facebook.com', color: '#1877F2', label: 'Facebook' },
-    { icon: <FaTwitter className="text-xl" />, path: 'https://twitter.com', color: '#1DA1F2', label: 'Twitter' },
-    { icon: <FaInstagram className="text-xl" />, path: 'https://instagram.com', color: '#E4405F', label: 'Instagram' },
-    { icon: <FaLinkedin className="text-xl" />, path: 'https://linkedin.com', color: '#0A66C2', label: 'LinkedIn' }
-  ];
+  const colors = darkMode ? darkColors : lightColors;
+
+  // Footer translations - integrate with main translations
+  const footerTranslations = {
+    en: {
+      // Main translations from context
+      home: "Home",
+      about: "About Us",
+      services: "Services",
+      book: "Book Delivery",
+      track: "Track Shipment",
+      pricing: "Pricing",
+      contact: "Contact",
+      domesticCourier: "Domestic Courier",
+      intlShipping: "International Shipping",
+      airFreight: "Express Air Freight",
+      warehousing: "Warehousing",
+      packaging: "Packaging & Removal",
+      clearing: "Clearing & Forwarding",
+      
+      // Footer specific translations
+      quickLinks: "Quick Links",
+      ourServices: "Our Services",
+      contactInfo: "Contact Info",
+      workingHours: "Working Hours",
+      companyDesc: "I&M Courier and General Supplier Limited - Your trusted logistics partner across Tanzania and beyond.",
+      rights: "All rights reserved.",
+      privacy: "Privacy Policy",
+      terms: "Terms of Service",
+      followUs: "Follow Us",
+      subscribe: "Subscribe to our newsletter",
+      subscribePlaceholder: "Enter your email",
+      subscribeButton: "Subscribe",
+      address: "Ubungo Urafiki, Dar es Salaam, Tanzania",
+      phone: "+255 693 212 091",
+      email: "issaimcourier@gmail.com",
+      hoursWeekdays: "Mon - Fri: 8:00 AM - 6:00 PM",
+      hoursSaturday: "Sat: 9:00 AM - 4:00 PM",
+      hoursSunday: "Sun: Emergency Services Only",
+      madeWithLove: "Developed by:",
+      inTanzania: "Shaibu Mzogo"
+    },
+    sw: {
+      // Main translations from context
+      home: "Nyumbani",
+      about: "Kuhusu Sisi",
+      services: "Huduma",
+      book: "Hifadhi Usafirishaji",
+      track: "Fuatilia Mzigo",
+      pricing: "Bei",
+      contact: "Mawasiliano",
+      domesticCourier: "Usafirishaji Ndani",
+      intlShipping: "Usafirishaji Kimataifa",
+      airFreight: "Usafirishaji wa Haraka Kwa Ndege",
+      warehousing: "Hifadhi",
+      packaging: "Ufungaji & Uhamisho",
+      clearing: "Usafishaji & Upelelezi",
+      
+      // Footer specific translations
+      quickLinks: "Viungo Vya Haraka",
+      ourServices: "Huduma Zetu",
+      contactInfo: "Maelezo Ya Mawasiliano",
+      workingHours: "Masaa Ya Kazi",
+      companyDesc: "I&M Courier na Msajili wa Bidhaa Kwa Ujumla - Mshirika wako wa kusadikika katika usafirishaji Tanzania na zaidi.",
+      rights: "Haki zimehifadhiwa.",
+      privacy: "Sera ya Faragha",
+      terms: "Masharti ya Huduma",
+      followUs: "Tufuate",
+      subscribe: "Jiandikishe kwa jarida letu",
+      subscribePlaceholder: "Weka barua pepe yako",
+      subscribeButton: "Jiandikishe",
+      address: "Ubungo Urafiki, Dar es Salaam, Tanzania",
+      phone: "+255 693 212 091",
+      email: "issaimcourier@gmail.com",
+      hoursWeekdays: "Jumatatu - Ijumaa: 8:00 Asubuhi - 6:00 Usiku",
+      hoursSaturday: "Jumamosi: 9:00 Asubuhi - 4:00 Usiku",
+      hoursSunday: "Jumapili: Huduma za Dharura Pekee",
+      madeWithLove: "Imetengenezwa na:",
+      inTanzania: "Shaibu Mzogo"
+    }
+  };
+
+  // Get footer translations based on current language
+  const ft = footerTranslations[language];
 
   // Animation variants
-  const sectionVariants = {
-    hidden: { opacity: 0, y: 30 },
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  };
+
+  const staggerContainer = {
     visible: {
-      opacity: 1,
-      y: 0,
       transition: {
-        duration: 0.8,
-        ease: [0.1, 0.25, 0.3, 1],
-        staggerChildren: 0.2
+        staggerChildren: 0.1
       }
     }
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: 'easeOut' }
-    },
-    hover: {
-      scale: 1.05,
-      color: colors.primary,
-      transition: { duration: 0.3, ease: 'easeInOut' }
-    }
-  };
-
-  const socialVariants = {
-    hover: {
-      scale: 1.2,
-      rotate: 10,
-      transition: { type: 'spring', stiffness: 400, damping: 10 }
-    },
-    tap: { scale: 0.9 }
-  };
-
   return (
-    <motion.footer
-      className="w-full font-sans antialiased"
-      style={{ backgroundColor: colors.darkBg }}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: '-100px' }}
-      variants={sectionVariants}
+    <footer 
+      className="transition-colors duration-300"
+      style={{ 
+        backgroundColor: colors.light,
+        color: colors.textPrimary,
+        borderTop: `3px solid ${colors.secondary}`
+      }}
     >
-      <div className="container mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {/* Main Footer Content */}
+      <div className="container mx-auto px-4 sm:px-6 py-12 lg:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+          
           {/* Company Info */}
-          <motion.div variants={sectionVariants} className="flex flex-col items-center md:items-start">
-            <motion.div
-              className="mb-6"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <h2 className="text-3xl font-bold flex items-center">
-                <span style={{ color: colors.darkText }}>I&M</span>
-                <span style={{ color: colors.primary, marginLeft: '0.25rem' }}>COURIER</span>
-              </h2>
-              <p className="text-sm" style={{ color: colors.mutedText }}>
-                AND GENERAL SUPPLIER LIMITED
-              </p>
-            </motion.div>
-            <motion.p
-              className="text-base text-center md:text-left max-w-xs"
-              style={{ color: colors.mutedText }}
-              variants={itemVariants}
-            >
-              Your trusted partner for fast and reliable courier services and general supply solutions.
-            </motion.p>
-            <motion.div className="flex space-x-4 mt-6" variants={sectionVariants}>
-              {socialLinks.map((social, index) => (
-                <motion.a
-                  key={index}
-                  href={social.path}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  variants={socialVariants}
-                  whileHover="hover"
-                  whileTap="tap"
-                  className="p-3 rounded-full"
-                  style={{ backgroundColor: social.color, color: colors.darkText }}
-                  aria-label={social.label}
-                >
-                  {social.icon}
-                </motion.a>
-              ))}
-            </motion.div>
+          <motion.div
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mr-3"
+                style={{ 
+                  backgroundColor: colors.secondary,
+                  color: colors.textLight
+                }}
+              >
+                <FaTruck className="text-xl" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold" style={{ color: colors.primary }}>
+                  {t.company || "I&M COURIER"}
+                </h3>
+                <p className="text-sm font-semibold" style={{ color: colors.secondary }}>
+                  {t.tagline || "AND GENERAL SUPPLIER"}
+                </p>
+              </div>
+            </div>
+            
+            <p className="mb-6" style={{ color: colors.textSecondary }}>
+              {ft.companyDesc}
+            </p>
+            
+            {/* Social Links */}
+            <div>
+              <h4 className="font-bold mb-4" style={{ color: colors.textPrimary }}>{ft.followUs}</h4>
+              <div className="flex space-x-3">
+                {[
+                  { icon: <FaTiktok />, href: 'https://www.tiktok.com/@landmcourierlogistics', label: 'TikTok' },
+                  { icon: <FaInstagram />, href: 'https://instagram.com/landmcourierservice', label: 'Instagram' },
+                  { icon: <FaFacebook />, href: '#', label: 'Facebook' },
+                  { icon: <FaTwitter />, href: '#', label: 'Twitter' },
+                  { icon: <FaLinkedin />, href: '#', label: 'LinkedIn' }
+                ].map((social, index) => (
+                  <motion.a
+                    key={index}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
+                    style={{ 
+                      backgroundColor: colors.lightGray,
+                      color: colors.primary,
+                      border: `1px solid ${colors.primary}30`
+                    }}
+                    whileHover={{ 
+                      scale: 1.1,
+                      backgroundColor: colors.secondary,
+                      color: colors.textLight
+                    }}
+                    aria-label={social.label}
+                  >
+                    {social.icon}
+                  </motion.a>
+                ))}
+              </div>
+            </div>
           </motion.div>
 
-          {/* Footer Links */}
-          {footerLinks.map((section, index) => (
-            <motion.div
-              key={index}
-              className="flex flex-col items-center md:items-start"
-              variants={sectionVariants}
+          {/* Quick Links */}
+          <motion.div
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+          >
+            <h4 className="text-lg font-bold mb-6 pb-2 border-b" 
+              style={{ 
+                color: colors.primary,
+                borderColor: `${colors.primary}30`
+              }}
             >
-              <h3
-                className="text-xl font-semibold mb-4"
-                style={{ color: colors.darkText, borderBottom: `2px solid ${colors.primary}` }}
-              >
-                {section.title}
-              </h3>
-              <ul className="space-y-3">
-                {section.links.map((link, linkIndex) => (
-                  <motion.li
-                    key={linkIndex}
-                    variants={itemVariants}
-                    whileHover="hover"
-                    transition={{ type: 'spring', stiffness: 300 }}
-                  >
-                    <Link
-                      to={link.path}
-                      className="text-base transition-colors duration-200"
-                      style={{ color: colors.mutedText }}
-                    >
-                      {link.name}
-                    </Link>
-                  </motion.li>
-                ))}
-              </ul>
-            </motion.div>
-          ))}
-
-          {/* Contact Info */}
-          <motion.div className="flex flex-col items-center md:items-start" variants={sectionVariants}>
-            <h3
-              className="text-xl font-semibold mb-4"
-              style={{ color: colors.darkText, borderBottom: `2px solid ${colors.primary}` }}
-            >
-              Contact Us
-            </h3>
-            <ul className="space-y-4">
+              {ft.quickLinks}
+            </h4>
+            
+            <ul className="space-y-3">
               {[
-                {
-                  icon: <FaPhoneAlt className="text-lg" />,
-                  text: '+255 123 456 789',
-                  color: colors.primary
-                },
-                {
-                  icon: <FaEnvelope className="text-lg" />,
-                  text: 'info@imcourier.com',
-                  color: colors.primary
-                },
-                {
-                  icon: <FaMapMarkerAlt className="text-lg" />,
-                  text: '123 Posta Street, Dar es Salaam, Tanzania',
-                  color: colors.primary
-                },
-                {
-                  icon: <FaClock className="text-lg" />,
-                  text: 'Mon-Fri: 8AM - 6PM\nSat: 9AM - 2PM',
-                  color: colors.primary
-                }
-              ].map((item, index) => (
-                <motion.li
+                { path: "/", labelKey: "home" },
+                { path: "/about", labelKey: "about" },
+                { path: "/services", labelKey: "services" },
+                { path: "/book", labelKey: "book" },
+                { path: "/track", labelKey: "track" },
+                { path: "/contact", labelKey: "contact" }
+              ].map((link, index) => (
+                <motion.li 
                   key={index}
-                  className="flex items-start space-x-3"
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.03 }}
+                  whileHover={{ x: 5 }}
+                  transition={{ type: "spring", stiffness: 400 }}
                 >
-                  <div style={{ color: item.color }}>{item.icon}</div>
-                  <span
-                    className="text-base whitespace-pre-line"
-                    style={{ color: colors.mutedText }}
+                  <Link
+                    to={link.path}
+                    className="flex items-center group transition-colors duration-300"
+                    style={{ color: colors.textSecondary }}
                   >
-                    {item.text}
+                    <div className="w-2 h-2 rounded-full mr-3 transition-all duration-300 group-hover:scale-125"
+                      style={{ backgroundColor: colors.secondary }}
+                    />
+                    <span className="group-hover:font-semibold transition-all duration-300">
+                      {ft[link.labelKey]}
+                    </span>
+                  </Link>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
+
+          {/* Services */}
+          <motion.div
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
+            <h4 className="text-lg font-bold mb-6 pb-2 border-b" 
+              style={{ 
+                color: colors.primary,
+                borderColor: `${colors.primary}30`
+              }}
+            >
+              {ft.ourServices}
+            </h4>
+            
+            <ul className="space-y-3">
+              {[
+                { icon: <FaTruck />, labelKey: "domesticCourier" },
+                { icon: <FaGlobe />, labelKey: "intlShipping" },
+                { icon: <FaShippingFast />, labelKey: "airFreight" },
+                { icon: <FaShieldAlt />, labelKey: "warehousing" },
+                { icon: <FaTruck />, labelKey: "packaging" },
+                { icon: <FaShieldAlt />, labelKey: "clearing" }
+              ].map((service, index) => (
+                <motion.li 
+                  key={index}
+                  className="flex items-center"
+                  whileHover={{ x: 5 }}
+                  transition={{ type: "spring", stiffness: 400 }}
+                >
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center mr-3 transition-colors duration-300"
+                    style={{ 
+                      backgroundColor: `${colors.primary}10`,
+                      color: colors.primary
+                    }}
+                  >
+                    {service.icon}
+                  </div>
+                  <span style={{ color: colors.textSecondary }}>
+                    {ft[service.labelKey]}
                   </span>
                 </motion.li>
               ))}
             </ul>
           </motion.div>
+
+          {/* Contact Info */}
+          <motion.div
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+          >
+            <h4 className="text-lg font-bold mb-6 pb-2 border-b" 
+              style={{ 
+                color: colors.primary,
+                borderColor: `${colors.primary}30`
+              }}
+            >
+              {ft.contactInfo}
+            </h4>
+            
+            <div className="space-y-4">
+              {/* Address */}
+              <div className="flex items-start">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
+                  style={{ 
+                    backgroundColor: `${colors.secondary}20`,
+                    color: colors.secondary
+                  }}
+                >
+                  <FaMapMarkerAlt />
+                </div>
+                <div>
+                  <p className="font-semibold mb-1" style={{ color: colors.textPrimary }}>
+                    {ft.address}
+                  </p>
+                </div>
+              </div>
+
+              {/* Phone */}
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
+                  style={{ 
+                    backgroundColor: `${colors.secondary}20`,
+                    color: colors.secondary
+                  }}
+                >
+                  <FaPhoneAlt />
+                </div>
+                <div>
+                  <a 
+                    href="tel:+255693212091"
+                    className="font-semibold hover:underline transition-colors duration-300"
+                    style={{ color: colors.textPrimary }}
+                  >
+                    {ft.phone}
+                  </a>
+                </div>
+              </div>
+
+              {/* Email */}
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
+                  style={{ 
+                    backgroundColor: `${colors.secondary}20`,
+                    color: colors.secondary
+                  }}
+                >
+                  <FaEnvelope />
+                </div>
+                <div>
+                  <a 
+                    href="mailto:issaimcourier@gmail.com"
+                    className="font-semibold hover:underline transition-colors duration-300"
+                    style={{ color: colors.textPrimary }}
+                  >
+                    {ft.email}
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Working Hours */}
+            <h4 className="text-lg font-bold mb-4 mt-8 pb-2 border-b" 
+              style={{ 
+                color: colors.primary,
+                borderColor: `${colors.primary}30`
+              }}
+            >
+              {ft.workingHours}
+            </h4>
+            
+            <div className="space-y-2">
+              <div className="flex items-center">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
+                  style={{ 
+                    backgroundColor: `${colors.primary}10`,
+                    color: colors.primary
+                  }}
+                >
+                  <FaClock />
+                </div>
+                <span style={{ color: colors.textSecondary }}>{ft.hoursWeekdays}</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
+                  style={{ 
+                    backgroundColor: `${colors.primary}10`,
+                    color: colors.primary
+                  }}
+                >
+                  <FaClock />
+                </div>
+                <span style={{ color: colors.textSecondary }}>{ft.hoursSaturday}</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
+                  style={{ 
+                    backgroundColor: `${colors.primary}10`,
+                    color: colors.primary
+                  }}
+                >
+                  <FaClock />
+                </div>
+                <span style={{ color: colors.textSecondary }}>{ft.hoursSunday}</span>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Copyright */}
+        {/* Newsletter Subscription */}
         <motion.div
-          className="border-t pt-6 text-center"
-          style={{ borderColor: colors.divider }}
-          variants={sectionVariants}
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="mt-12 pt-8 border-t"
+          style={{ borderColor: `${colors.primary}20` }}
         >
-          <p style={{ color: colors.mutedText }}>
-            &copy; {new Date().getFullYear()} I&M Courier and General Supplier Limited. All Rights Reserved.
-          </p>
-          <motion.p
-            className="text-sm mt-2"
-            style={{ color: colors.mutedText }}
-            variants={itemVariants}
-            whileHover={{ color: colors.primary }}
-          >
-            Designed for Tanzania's logistics needs
-          </motion.p>
+          <div className="max-w-lg mx-auto">
+            <h4 className="text-xl font-bold text-center mb-4" style={{ color: colors.textPrimary }}>
+              {ft.subscribe}
+            </h4>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="email"
+                placeholder={ft.subscribePlaceholder}
+                className="flex-grow px-4 py-3 rounded-lg focus:outline-none focus:ring-2 transition-all duration-300"
+                style={{
+                  backgroundColor: colors.lightGray,
+                  color: colors.textPrimary,
+                  border: `1px solid ${colors.primary}30`,
+                  boxShadow: `0 2px 4px ${colors.primary}10`
+                }}
+              />
+              <motion.button
+                className="px-6 py-3 rounded-lg font-bold transition-all duration-300"
+                style={{
+                  backgroundColor: colors.secondary,
+                  color: colors.textLight
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {ft.subscribeButton}
+              </motion.button>
+            </div>
+          </div>
         </motion.div>
       </div>
-    </motion.footer>
+
+      {/* Bottom Bar */}
+      <div 
+        className="py-6 border-t"
+        style={{ 
+          backgroundColor: colors.primaryDark,
+          borderColor: `${colors.primary}30`,
+          color: colors.textLight
+        }}
+      >
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="text-center md:text-left mb-4 md:mb-0">
+              <p className="text-sm">
+                © {new Date().getFullYear()} I&M Courier and General Supplier Limited. {ft.rights}
+              </p>
+            </div>
+            
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link 
+                to="/privacy"
+                className="text-sm hover:underline transition-colors duration-300"
+                style={{ color: colors.textLight }}
+              >
+                {ft.privacy}
+              </Link>
+              <Link 
+                to="/terms"
+                className="text-sm hover:underline transition-colors duration-300"
+                style={{ color: colors.textLight }}
+              >
+                {ft.terms}
+              </Link>
+              <div className="flex items-center">
+                <span className="text-sm mr-2">{ft.madeWithLove}</span>
+                <span className="text-sm ml-2">{ft.inTanzania}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 };
 
