@@ -186,6 +186,8 @@ const Home = () => {
               animate="visible"
               className="text-center lg:text-left"
             >
+
+              <br></br><br></br>
               {/* Small Badge */}
               <motion.div
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
