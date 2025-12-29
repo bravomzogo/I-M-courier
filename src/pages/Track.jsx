@@ -1,107 +1,222 @@
-import { useState } from "react"
-import axios from "axios"
+// src/pages/Login.jsx
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
+import { useApp } from '../context/AppContext';
 
-const Track = () => {
-  const [trackingNumber, setTrackingNumber] = useState("")
-  const [parcel, setParcel] = useState(null)
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+// COMPONENT DEFINITION - This is what was missing
+const Login = () => {
+  const { t, darkMode } = useApp();
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  });
+  
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleTrack = (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
-    setParcel(null)
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
 
-    axios
-      .get(`http://localhost:8000/api/track/${trackingNumber}/` && `https://api-n7hd.onrender.com/api/track/${trackingNumber}/`)
-      .then((response) => {
-        setParcel(response.data)
-        setError("")
-      })
-      .catch(() => {
-        setError("Parcel not found. Please check the tracking number.")
-        setParcel(null)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const result = await login(formData.username, formData.password);
+      
+      if (result.success) {
+        navigate('/dashboard');
+      } else {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError('An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const colors = darkMode ? {
+    primary: '#2196F3',
+    secondary: '#F44336',
+    light: '#121212',
+    dark: '#FFFFFF',
+    cardBg: '#1E1E1E',
+    textPrimary: '#FFFFFF'
+  } : {
+    primary: '#0D47A1',
+    secondary: '#D32F2F',
+    light: '#FFFFFF',
+    dark: '#212121',
+    cardBg: '#FFFFFF',
+    textPrimary: '#212121'
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24 pb-12 px-4 flex justify-center">
-      <div className="w-full max-w-2xl bg-white shadow-lg rounded-2xl p-6 sm:p-10">
-        {/* Page Title */}
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">
-          Track Your Parcel
-        </h2>
-
-        {/* Tracking Form */}
-        <form onSubmit={handleTrack} className="flex flex-col sm:flex-row gap-3 mb-6">
-          <input
-            type="text"
-            value={trackingNumber}
-            onChange={(e) => setTrackingNumber(e.target.value)}
-            placeholder="Enter Tracking Number"
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            required
-          />
-          <button
-            type="submit"
-            className="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 pt-20">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md mx-4"
+      >
+        <div 
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden"
+          style={{ border: `2px solid ${colors.primary}` }}
+        >
+          {/* Header */}
+          <div 
+            className="p-8 text-center"
+            style={{ backgroundColor: colors.primary }}
           >
-            {loading ? "Searching..." : "Track"}
-          </button>
-        </form>
-
-        {/* Error Message */}
-        {error && (
-          <p className="text-red-500 text-center font-medium mb-4">{error}</p>
-        )}
-
-        {/* Parcel Info */}
-        {parcel && (
-          <div className="p-5 sm:p-6 bg-gray-100 rounded-xl border border-gray-200 shadow-sm">
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
-              Parcel Details
-            </h3>
-            <ul className="space-y-2 text-gray-700 text-sm sm:text-base">
-              <li>
-                <strong>Tracking Number:</strong> {parcel.tracking_number}
-              </li>
-              <li>
-                <strong>Status:</strong>{" "}
-                <span
-                  className={`${
-                    parcel.status === "Delivered"
-                      ? "text-green-600"
-                      : "text-yellow-600"
-                  } font-medium`}
-                >
-                  {parcel.status}
-                </span>
-              </li>
-              <li>
-                <strong>Sender:</strong> {parcel.sender_name}
-              </li>
-              <li>
-                <strong>Receiver:</strong> {parcel.receiver_name}
-              </li>
-              <li>
-                <strong>Pickup Location:</strong> {parcel.pickup_location}
-              </li>
-              <li>
-                <strong>Delivery Location:</strong> {parcel.delivery_location}
-              </li>
-              <li>
-                <strong>Weight:</strong> {parcel.weight} kg
-              </li>
-            </ul>
+            <h1 className="text-2xl font-bold text-white">{t.login}</h1>
+            <p className="text-white opacity-90 mt-2">
+              Access your I&M Courier account
+            </p>
           </div>
-        )}
-      </div>
-    </div>
-  )
-}
 
-export default Track
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-8">
+            {error && (
+              <div 
+                className="mb-6 p-4 rounded-lg flex items-center"
+                style={{ 
+                  backgroundColor: colors.secondary + '20',
+                  border: `1px solid ${colors.secondary}`
+                }}
+              >
+                <div className="text-red-600 font-medium">{error}</div>
+              </div>
+            )}
+
+            <div className="space-y-6">
+              {/* Username/Email */}
+              <div>
+                <label 
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: colors.textPrimary }}
+                >
+                  Username or Email
+                </label>
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all"
+                  style={{
+                    backgroundColor: darkMode ? '#2D2D2D' : '#F9FAFB',
+                    borderColor: colors.primary,
+                    color: colors.textPrimary
+                  }}
+                  placeholder="Enter your username or email"
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <label 
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: colors.textPrimary }}
+                >
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all"
+                  style={{
+                    backgroundColor: darkMode ? '#2D2D2D' : '#F9FAFB',
+                    borderColor: colors.primary,
+                    color: colors.textPrimary
+                  }}
+                  placeholder="Enter your password"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <motion.button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 px-4 rounded-lg font-bold text-white transition-all disabled:opacity-70"
+                style={{ backgroundColor: colors.primary }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {loading ? 'Logging in...' : t.login}
+              </motion.button>
+
+              {/* Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span 
+                    className="px-2"
+                    style={{ 
+                      backgroundColor: darkMode ? '#1E1E1E' : '#FFFFFF',
+                      color: colors.textPrimary 
+                    }}
+                  >
+                    Don't have an account?
+                  </span>
+                </div>
+              </div>
+
+              {/* Register Link */}
+              <div className="text-center">
+                <Link
+                  to="/register"
+                  className="inline-block px-6 py-3 rounded-lg font-bold transition-all"
+                  style={{ 
+                    backgroundColor: colors.secondary,
+                    color: '#FFFFFF'
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {t.register}
+                </Link>
+              </div>
+            </div>
+          </form>
+
+          {/* Footer */}
+          <div className="px-8 py-4 text-center border-t border-gray-200 dark:border-gray-700">
+            <p 
+              className="text-sm"
+              style={{ color: colors.textPrimary }}
+            >
+              By logging in, you agree to our{' '}
+              <a href="/terms" className="font-semibold" style={{ color: colors.primary }}>
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="/privacy" className="font-semibold" style={{ color: colors.primary }}>
+                Privacy Policy
+              </a>
+            </p>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// EXPORT STATEMENT - This should be line 123
+export default Login;

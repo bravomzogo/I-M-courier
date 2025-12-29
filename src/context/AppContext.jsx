@@ -1,172 +1,198 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+// context/AppContext.jsx
+import React, { createContext, useState, useContext, useEffect } from 'react';
+
+// Translations - FIXED: Removed duplicate keys
+const translations = {
+  en: {
+    company: "I&M COURIER",
+    tagline: "Fast & Reliable Delivery",
+    home: "Home",
+    about: "About Us",
+    services: "Services",
+    book: "Book Delivery",
+    track: "Track Parcel",
+    pricing: "Pricing",
+    contact: "Contact Us",
+    trackBtn: "Track Now",
+    login: "Login",
+    logout: "Logout",           // ✅ Only ONE logout
+    register: "Register",        // ✅ Only ONE register
+    profile: "Profile",
+    dashboard: "Dashboard",
+    approvals: "Approvals",
+    driverDashboard: "Driver Dashboard",
+    driver: "Driver",
+    approver: "Approver",
+    account: "Account",
+    bookDelivery: "Book Delivery",
+    trackParcel: "Track Parcel",
+    ourServices: "Our Services",
+    contactUs: "Contact Us",
+    getQuote: "Get Quote",
+    learnMore: "Learn More",
+    // Add any missing translations from Home.jsx
+    trustedSince: "Trusted Since 1975",
+    revolutionizing: "Revolutionizing logistics with",
+    speedPrecision: "speed, precision",
+    and: "and",
+    reliability: "reliability",
+    trackPackage: "Track Package",
+    yearsExp: "Years Experience",
+    dailyShips: "Daily Shipments",
+    support: "24/7 Support",
+    whatWeOffer: "What We Offer",
+    comprehensive: "Comprehensive",
+    logisticsSolutions: "Logistics Solutions",
+    servicesDesc: "End-to-end supply chain solutions tailored to your needs",
+    domesticCourier: "Domestic Courier",
+    domesticDesc: "Fast and reliable delivery across Tanzania",
+    intlShipping: "International Shipping",
+    intlDesc: "Global shipping to over 200 countries",
+    airFreight: "Air Freight",
+    airDesc: "Express air cargo services",
+    warehousing: "Warehousing",
+    warehouseDesc: "Secure storage solutions",
+    packaging: "Packaging",
+    packagingDesc: "Professional packaging services",
+    clearing: "Customs Clearing",
+    clearingDesc: "Hassle-free customs processing",
+    whyChooseUs: "Why Choose",
+    companyName: "I&M Courier",
+    features: [
+      "Over 50 years of logistics excellence",
+      "24/7 customer support and real-time tracking",
+      "Competitive pricing with no hidden fees",
+      "Professional and experienced team",
+      "Secure handling of all shipments"
+    ],
+    readyToShip: "Ready to Ship?",
+    joinCustomers: "Join thousands of satisfied customers",
+    emailUs: "Email Us",
+    serving: "Serving Dar es Salaam and beyond"
+  },
+  sw: {
+    company: "I&M USAFIRISHAJI",
+    tagline: "Usafirishaji wa Haraka na Waaminifu",
+    home: "Nyumbani",
+    about: "Kuhusu Sisi",
+    services: "Huduma",
+    book: "Panga Usafirishaji",
+    track: "Fuatilia Mzigo",
+    pricing: "Bei",
+    contact: "Wasiliana Nasi",
+    trackBtn: "Fuatilia Sasa",
+    login: "Ingia",
+    logout: "Toka",              // ✅ Only ONE logout
+    register: "Jisajili",        // ✅ Only ONE register
+    profile: "Wasifu",
+    dashboard: "Dashibodi",
+    approvals: "Idhini",
+    driverDashboard: "Dashibodi ya Dereva",
+    driver: "Dereva",
+    approver: "Mkubali",
+    account: "Akaunti",
+    bookDelivery: "Panga Usafirishaji",
+    trackParcel: "Fuatilia Mzigo",
+    ourServices: "Huduma Zetu",
+    contactUs: "Wasiliana Nasi",
+    getQuote: "Pata Bei",
+    learnMore: "Jifunze Zaidi",
+    // Add Swahili translations
+    trustedSince: "Tunaaminika Tangu 1975",
+    revolutionizing: "Kuboresha usafirishaji kwa",
+    speedPrecision: "kasi, usahihi",
+    and: "na",
+    reliability: "kuaminika",
+    trackPackage: "Fuatilia Mzigo",
+    yearsExp: "Miaka ya Uzoefu",
+    dailyShips: "Usafirishaji wa Kila Siku",
+    support: "Msaada 24/7",
+    whatWeOffer: "Tunachotoa",
+    comprehensive: "Suluhisho Kamili za",
+    logisticsSolutions: "Usafirishaji",
+    servicesDesc: "Suluhisho kamili za usambazaji zinazolingana na mahitaji yako",
+    domesticCourier: "Usafirishaji wa Ndani",
+    domesticDesc: "Usafirishaji wa haraka na wa kuaminika nchini Tanzania",
+    intlShipping: "Usafirishaji wa Kimataifa",
+    intlDesc: "Usafirishaji duniani kote kwa nchi zaidi ya 200",
+    airFreight: "Usafirishaji wa Anga",
+    airDesc: "Huduma za haraka za mizigo ya anga",
+    warehousing: "Uhifadhi",
+    warehouseDesc: "Suluhisho salama za kuhifadhi",
+    packaging: "Ufungaji",
+    packagingDesc: "Huduma za kitaalamu za ufungaji",
+    clearing: "Forodha",
+    clearingDesc: "Usindikaji rahisi wa forodha",
+    whyChooseUs: "Kwa Nini Uchague",
+    companyName: "I&M Courier",
+    features: [
+      "Zaidi ya miaka 50 ya ubora wa usafirishaji",
+      "Msaada wa wateja 24/7 na ufuatiliaji wa wakati halisi",
+      "Bei za ushindani bila malipo ya siri",
+      "Timu ya kitaalamu na yenye uzoefu",
+      "Usalama wa mizigo yote"
+    ],
+    readyToShip: "Uko Tayari Kusafirisha?",
+    joinCustomers: "Jiunge na maelfu ya wateja wenye kuridhika",
+    emailUs: "Tutumie Barua Pepe",
+    serving: "Tunahudumia Dar es Salaam na zaidi"
+  }
+};
 
 const AppContext = createContext();
 
-export const useApp = () => useContext(AppContext);
+export const useApp = () => {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error('useApp must be used within an AppProvider');
+  }
+  return context;
+};
 
 export const AppProvider = ({ children }) => {
   const [darkMode, setDarkMode] = useState(() => {
-    // Check localStorage or system preference
     const saved = localStorage.getItem('darkMode');
-    if (saved !== null) return JSON.parse(saved);
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return saved ? JSON.parse(saved) : false;
   });
 
   const [language, setLanguage] = useState(() => {
-    return localStorage.getItem('language') || 'en';
+    const saved = localStorage.getItem('language');
+    return saved || 'en';
   });
 
-  // Text translations
-  const translations = {
-    en: {
-      // Header
-      home: "Home",
-      about: "About Us",
-      services: "Services",
-      book: "Book Delivery",
-      track: "Track Shipment",
-      pricing: "Pricing",
-      contact: "Contact",
-      company: "I&M COURIER",
-      tagline: "AND GENERAL SUPPLIER LIMITED",
-      trackBtn: "Track",
-      // Home Page
-      trustedSince: "Trusted Since 2018",
-      revolutionizing: "Revolutionizing logistics across Tanzania with",
-      speedPrecision: "speed, precision",
-      and: "and",
-      reliability: "reliability",
-      yearsExp: "Years Exp.",
-      dailyShips: "Daily Ships",
-      support: "Support",
-      trackPackage: "Track Package",
-      contactUs: "Contact Us",
-      whatWeOffer: "What We Offer",
-      comprehensive: "Comprehensive",
-      logisticsSolutions: "Logistics Solutions",
-      servicesDesc: "From local deliveries to international freight, we've got you covered",
-      domesticCourier: "Domestic Courier",
-      domesticDesc: "Same-day and next-day delivery across Tanzania",
-      intlShipping: "International Shipping",
-      intlDesc: "Worldwide courier with customs support",
-      airFreight: "Express Air Freight",
-      airDesc: "Urgent packages by air to major cities",
-      warehousing: "Warehousing",
-      warehouseDesc: "Secure storage and inventory management",
-      packaging: "Packaging & Removal",
-      packagingDesc: "Complete relocation services",
-      clearing: "Clearing & Forwarding",
-      clearingDesc: "Customs clearance for all freight types",
-      whyChooseUs: "Why",
-      companyName: "I&M Courier",
-      features: [
-        'Advanced tracking system with real-time updates',
-        'Dedicated account manager for each client',
-        'Receipt confirmation through HCS System',
-        '50+ fleet vehicles across Tanzania',
-        'Services available 7 days a week',
-        'Over 50 years combined expertise'
-      ],
-      learnMore: "Learn More About Us",
-      readyToShip: "Ready to Ship with Us?",
-      joinCustomers: "Join hundreds of satisfied customers across Tanzania",
-      emailUs: "Email Us",
-      serving: "Tunahudumia ndani ya Dar es Salaam na mikoani"
-    },
-    sw: {
-      // Header
-      home: "Nyumbani",
-      about: "Kuhusu Sisi",
-      services: "Huduma",
-      book: "Hifadhi Usafirishaji",
-      track: "Fuatilia Mzigo",
-      pricing: "Bei",
-      contact: "Mawasiliano",
-      company: "I&M COURIER",
-      tagline: "NA MSAJILI WA BIDHAA KWA UJUMLA",
-      trackBtn: "Fuatilia",
-      // Home Page
-      trustedSince: "Imeaminika Tangu 2018",
-      revolutionizing: "Kubadilisha mifumo ya usafirishaji Tanzania kwa",
-      speedPrecision: "kasi, usahihi",
-      and: "na",
-      reliability: "kuaminika",
-      yearsExp: "Miaka ya Uzoefu",
-      dailyShips: "Mizigo Kila Siku",
-      support: "Usaidizi",
-      trackPackage: "Fuatilia Mzigo",
-      contactUs: "Wasiliana Nasi",
-      whatWeOffer: "Tunatoa",
-      comprehensive: "Kamili",
-      logisticsSolutions: "Suluhisho za Usafirishaji",
-      servicesDesc: "Kutoka usafirishaji wa ndani hadi kimataifa, tumekusudia",
-      domesticCourier: "Usafirishaji Ndani",
-      domesticDesc: "Uwasilishaji siku hiyo na siku inayofuata Tanzania nzima",
-      intlShipping: "Usafirishaji Kimataifa",
-      intlDesc: "Usafirishaji ulimwenguni kote na usaidizi wa forodha",
-      airFreight: "Usafirishaji wa Haraka Kwa Ndege",
-      airDesc: "Mizigo ya dharura kwa ndege hadi miji mikuu",
-      warehousing: "Hifadhi",
-      warehouseDesc: "Uhifadhi salama na usimamizi wa hesabu",
-      packaging: "Ufungaji & Uhamisho",
-      packagingDesc: "Huduma kamili za uhamisho",
-      clearing: "Usafishaji & Upelelezi",
-      clearingDesc: "Usafishaji wa forodha kwa aina zote za mizigo",
-      whyChooseUs: "Kwa Nini",
-      companyName: "I&M Courier",
-      features: [
-        'Mfumo wa juu wa kufuatilia na sasisho la wakati halisi',
-        'Meneja wa akaa maalum kwa kila mteja',
-        'Uthibitisho wa poketi kupitia Mfumo wa HCS',
-        'Zaidi ya magari 50 ya usafirishaji Tanzania nzima',
-        'Huduma zinapatikana siku 7 kwa wiki',
-        'Zaidi ya miaka 50 ya uzoefu uliokusanyika'
-      ],
-      learnMore: "Jifunze Zaidi Kutuhusu",
-      readyToShip: "Tayari Kusafirisha Nasi?",
-      joinCustomers: "Jiunge na mamia ya wateja walioridhika Tanzania nzima",
-      emailUs: "Tutumie Barua Pepe",
-      serving: "We serve within Dar es Salaam and upcountry"
-    }
-  };
+  const t = translations[language];
 
-  // Toggle functions
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    document.documentElement.classList.toggle('dark', darkMode);
+  }, [darkMode]);
+
+  useEffect(() => {
+    localStorage.setItem('language', language);
+  }, [language]);
+
   const toggleDarkMode = () => {
-    setDarkMode(prev => {
-      const newMode = !prev;
-      localStorage.setItem('darkMode', JSON.stringify(newMode));
-      return newMode;
-    });
+    setDarkMode(!darkMode);
   };
 
   const toggleLanguage = () => {
-    setLanguage(prev => {
-      const newLang = prev === 'en' ? 'sw' : 'en';
-      localStorage.setItem('language', newLang);
-      return newLang;
-    });
+    setLanguage(language === 'en' ? 'sw' : 'en');
   };
 
-  // Apply dark mode class to body
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      document.documentElement.style.backgroundColor = '#111827';
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.style.backgroundColor = '#ffffff';
-    }
-  }, [darkMode]);
+  const value = {
+    darkMode,
+    language,
+    t,
+    toggleDarkMode,
+    toggleLanguage
+  };
 
   return (
-    <AppContext.Provider value={{
-      darkMode,
-      language,
-      t: translations[language],
-      toggleDarkMode,
-      toggleLanguage
-    }}>
+    <AppContext.Provider value={value}>
       {children}
     </AppContext.Provider>
   );
 };
+
+// ❌ REMOVE THIS LINE - it shouldn't be here!
+// export default Login;
