@@ -1,18 +1,18 @@
 // src/pages/Login.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
-  FaEnvelope,     // For email field
+  FaEnvelope,
   FaLock, 
   FaEye, 
   FaEyeSlash,
   FaTruck,
   FaShieldAlt,
-  FaUser          // For feature icon (customer support)
+  FaUser
 } from 'react-icons/fa';
 import { useApp } from '../context/AppContext';
-import api, { setAuthTokens } from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 
 // Translations - Email only
 const translations = {
@@ -32,7 +32,6 @@ const translations = {
     enterEmail: "Enter your email address",
     enterPassword: "Enter your password",
     loggingIn: "Signing in...",
-    // Features
     feature1: "Track your packages in real-time",
     feature2: "Secure and reliable delivery",
     feature3: "24/7 customer support",
@@ -53,14 +52,12 @@ const translations = {
     enterEmail: "Weka barua pepe yako",
     enterPassword: "Weka nywila yako",
     loggingIn: "Inaingia...",
-    // Features
     feature1: "Fuatilia mizigo yako wakati halisi",
     feature2: "Usafirishaji salama na wa kuaminika",
     feature3: "Msaada wa wateja 24/7",
   }
 };
 
-// Animation variants
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
@@ -73,8 +70,10 @@ const slideIn = {
 
 const Login = () => {
   const { darkMode, language } = useApp();
+  const { login } = useAuth();
   const t = translations[language];
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -85,7 +84,26 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Color scheme
+  // Check if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    const user = localStorage.getItem('user');
+    
+    if (token && user) {
+      console.log('User already logged in, redirecting...');
+      const userData = JSON.parse(user);
+      
+      // Redirect based on role
+      if (userData.role === 'driver' || userData.is_driver) {
+        navigate('/driver', { replace: true });
+      } else if (userData.role === 'admin' || userData.is_staff || userData.is_superuser) {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [navigate]);
+
   const colors = darkMode ? {
     primary: '#2196F3',
     secondary: '#F44336',
@@ -112,6 +130,7 @@ const Login = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    if (error) setError('');
   };
 
   const handleSubmit = async (e) => {
@@ -119,37 +138,50 @@ const Login = () => {
     setError('');
     setIsLoading(true);
 
+    console.log('Submitting login form...');
+    console.log('Email:', formData.email);
+
     try {
-      const response = await api.post('/auth/login/', {
-        email: formData.email.trim(),
-        password: formData.password,
-      });
-
-      const { access, refresh, user } = response.data;
-
-      setAuthTokens(access, refresh);
-      localStorage.setItem('user', JSON.stringify(user));
+      // Call the login function from AuthContext
+      // Pass email as credential and password
+      await login(formData.email.trim(), formData.password);
+      
+      console.log('Login successful via AuthContext');
 
       if (formData.rememberMe) {
         localStorage.setItem('remember_me', 'true');
       }
 
-      // Immediate redirect
-      if (user.role === 'driver' || user.is_driver) {
-        navigate('/driver', { replace: true });
-      } else if (user.role === 'admin' || user.is_staff || user.is_superuser) {
-        navigate('/admin', { replace: true });
-      } else {
-        navigate('/dashboard', { replace: true });
-      }
+      // Get redirect location from state if it exists
+      const from = location.state?.from?.pathname || '/dashboard';
+      console.log('Redirecting to:', from);
+
+      // Navigate to the appropriate page
+      navigate(from, { replace: true });
 
     } catch (err) {
-      let errorMessage = 'Login failed. Please try again.';
-      if (err.response?.data?.detail) {
+      console.error('Login error:', err);
+      console.error('Error details:', err.response || err.message);
+      
+      let errorMessage = 'Login failed. Please check your credentials and try again.';
+      
+      if (err.response?.status === 401) {
+        errorMessage = 'Invalid email or password. Please try again.';
+      } else if (err.response?.status === 400) {
+        errorMessage = 'Please check your email and password.';
+      } else if (err.response?.data?.detail) {
         errorMessage = err.response.data.detail;
+      } else if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
       } else if (err.response?.data) {
-        errorMessage = Object.values(err.response.data).flat().join(' ');
+        const errors = Object.values(err.response.data).flat();
+        if (errors.length > 0) {
+          errorMessage = errors.join(' ');
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
       }
+      
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -190,7 +222,7 @@ const Login = () => {
               {[
                 { icon: <FaTruck />, text: t.feature1 },
                 { icon: <FaShieldAlt />, text: t.feature2 },
-                { icon: <FaUser />, text: t.feature3 }  // Now FaUser is imported!
+                { icon: <FaUser />, text: t.feature3 }
               ].map((feature, i) => (
                 <motion.div
                   key={i}
@@ -254,13 +286,13 @@ const Login = () => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-4 p-3 rounded-lg flex items-center"
-                style={{ backgroundColor: `${colors.secondary}20`, color: colors.secondary }}
+                className="mb-4 p-3 rounded-lg flex items-start"
+                style={{ backgroundColor: `${colors.secondary}20`, color: colors.secondary, border: `1px solid ${colors.secondary}` }}
               >
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
-                <span>{error}</span>
+                <span className="text-sm">{error}</span>
               </motion.div>
             )}
 
@@ -339,9 +371,10 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center hover:opacity-70 transition-opacity"
                     style={{ color: colors.textSecondary }}
                     disabled={isLoading}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </button>
@@ -350,7 +383,7 @@ const Login = () => {
 
               {/* Remember Me & Forgot Password */}
               <div className="flex items-center justify-between">
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     name="rememberMe"
@@ -369,7 +402,7 @@ const Login = () => {
                 </label>
                 <Link 
                   to="/forgot-password"
-                  className="text-sm hover:underline"
+                  className="text-sm hover:underline transition-all"
                   style={{ color: colors.primary }}
                 >
                   {t.forgotPassword}
@@ -384,7 +417,8 @@ const Login = () => {
                 style={{
                   backgroundColor: isLoading ? `${colors.primary}80` : colors.primary,
                   color: '#FFFFFF',
-                  cursor: isLoading ? 'not-allowed' : 'pointer'
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  opacity: isLoading ? 0.8 : 1
                 }}
                 whileHover={!isLoading ? { scale: 1.02 } : {}}
                 whileTap={!isLoading ? { scale: 0.98 } : {}}
@@ -441,7 +475,7 @@ const Login = () => {
                 {t.noAccount}{' '}
                 <Link 
                   to="/register"
-                  className="font-bold hover:underline"
+                  className="font-bold hover:underline transition-all"
                   style={{ color: colors.primary }}
                 >
                   {t.register}

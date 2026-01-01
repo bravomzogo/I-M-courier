@@ -131,6 +131,7 @@ const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
+          <br></br><br></br>
           <h1 className="text-3xl font-bold mb-2" style={{ color: colors.textPrimary }}>
             Welcome back, {user?.first_name || user?.username}!
           </h1>
