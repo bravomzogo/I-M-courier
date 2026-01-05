@@ -1,6 +1,7 @@
 const Contact = () => {
   return (
     <div className="min-h-screen bg-gray-50 pt-24 pb-12 px-4">
+      <br></br><br></br>
       <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
         {/* Page Title */}
         <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8 text-center">
@@ -56,7 +57,7 @@ const Contact = () => {
             
           </div>
           <p className="text-gray-700"><strong>Phone:</strong> +255 693 212 091</p>
-          <p className="text-gray-700"><strong>Email:</strong> info@I&Mcourier.com</p>
+          <p className="text-gray-700"><strong>Email:</strong> info@imcouriersupply.com</p>
         </div>
       </div>
     </div>

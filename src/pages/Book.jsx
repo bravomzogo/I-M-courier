@@ -45,10 +45,14 @@ const Book = () => {
 
   const fetchServices = async () => {
     try {
+      setLoading(true)
       const response = await axios.get(`${API_BASE}/services/`)
       setServices(response.data)
     } catch (err) {
       console.error("Error fetching services:", err)
+      setError("Failed to load services. Please refresh the page.")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -131,7 +135,7 @@ const Book = () => {
                   <option value="">Select a service</option>
                   {services.map((service) => (
                     <option key={service.id} value={service.id}>
-                      {service.name} - ${service.price_per_kg}/kg
+                      {service.name} - Tsh {service.price_per_kg.toLocaleString()}/kg
                     </option>
                   ))}
                 </select>
@@ -171,7 +175,7 @@ const Book = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Declared Value ($)
+                  Declared Value (Tsh)
                 </label>
                 <input
                   type="number"
@@ -380,7 +384,7 @@ const Book = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Estimated Cost:</span>
                     <span className="font-medium text-blue-600">
-                      ${selectedService ? (selectedService.price_per_kg * parseFloat(formData.weight)).toFixed(2) : '0.00'}
+                      Tsh {selectedService ? (selectedService.price_per_kg * parseFloat(formData.weight)).toLocaleString() : '0'}
                     </span>
                   </div>
                   {formData.dimensions && (
@@ -392,7 +396,7 @@ const Book = () => {
                   {formData.declared_value && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">Declared Value:</span>
-                      <span className="font-medium">${formData.declared_value}</span>
+                      <span className="font-medium">Tsh {parseFloat(formData.declared_value).toLocaleString()}</span>
                     </div>
                   )}
                 </div>
@@ -461,7 +465,7 @@ const Book = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pt-20 pb-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 px-4" style={{ paddingTop: '100px', paddingBottom: '48px' }}>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
@@ -518,55 +522,64 @@ const Book = () => {
             </div>
           )}
 
-          {/* Step Content */}
-          <div className="mb-8">
-            {renderStep()}
-          </div>
+          {loading && step === 1 ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+              <span className="ml-3 text-gray-600">Loading services...</span>
+            </div>
+          ) : (
+            <>
+              {/* Step Content */}
+              <div className="mb-8">
+                {renderStep()}
+              </div>
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between pt-6 border-t">
-            <button
-              type="button"
-              onClick={prevStep}
-              disabled={step === 1}
-              className={`px-6 py-3 rounded-lg font-medium transition-all ${
-                step === 1 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              Back
-            </button>
+              {/* Navigation Buttons */}
+              <div className="flex justify-between pt-6 border-t">
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  disabled={step === 1}
+                  className={`px-6 py-3 rounded-lg font-medium transition-all ${
+                    step === 1 
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  Back
+                </button>
 
-            {step < 3 ? (
-              <button
-                type="button"
-                onClick={nextStep}
-                className="px-8 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all"
-              >
-                Next
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all flex items-center gap-2 disabled:opacity-70"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Submitting...
-                  </>
+                {step < 3 ? (
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    className="px-8 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all"
+                  >
+                    Next
+                  </button>
                 ) : (
-                  <>
-                    <CheckCircle className="w-5 h-5" />
-                    Submit Parcel Request
-                  </>
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={submitting}
+                    className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all flex items-center gap-2 disabled:opacity-70"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-5 h-5" />
+                        Submit Parcel Request
+                      </>
+                    )}
+                  </button>
                 )}
-              </button>
-            )}
-          </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Additional Info */}
@@ -597,7 +610,8 @@ const Book = () => {
               <h3 className="font-semibold text-gray-800">Need Help?</h3>
             </div>
             <p className="text-sm text-gray-600">
-              Contact our support team at support@imcourier.com or call +255 123 456 789.
+              Contact our support team at info@imcouriersupply.com
+ or call +255 693 212 091.
             </p>
           </div>
         </div>

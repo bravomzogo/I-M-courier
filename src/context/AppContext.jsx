@@ -31,7 +31,7 @@ const translations = {
     getQuote: "Get Quote",
     learnMore: "Learn More",
     // Add any missing translations from Home.jsx
-    trustedSince: "Trusted Since 1975",
+    trustedSince: "Trusted Since 2025",
     revolutionizing: "Revolutionizing logistics with",
     speedPrecision: "speed, precision",
     and: "and",
@@ -98,7 +98,7 @@ const translations = {
     getQuote: "Pata Bei",
     learnMore: "Jifunze Zaidi",
     // Add Swahili translations
-    trustedSince: "Tunaaminika Tangu 1975",
+    trustedSince: "Tunaaminika Tangu 2025",
     revolutionizing: "Kuboresha usafirishaji kwa",
     speedPrecision: "kasi, usahihi",
     and: "na",

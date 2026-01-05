@@ -4,13 +4,12 @@ import { motion } from 'framer-motion';
 import { 
   FaBox, FaTruck, FaCheckCircle, FaClock, 
   FaDollarSign, FaChartLine, FaExclamationTriangle,
-  FaHistory, FaUser, FaMapMarkerAlt
+  FaHistory, FaUser, FaMapMarkerAlt, FaCalendarAlt,
+  FaWeight, FaRoute, FaPhoneAlt
 } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
-import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+import api from '../utils/api';
 
 const Dashboard = () => {
   const { user, isDriver, isApprover } = useAuth();
@@ -19,25 +18,46 @@ const Dashboard = () => {
   const [recentParcels, setRecentParcels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
+    
+    // Auto-refresh every 60 seconds
+    const interval = setInterval(() => {
+      fetchDashboardData(true);
+    }, 60000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (isAutoRefresh = false) => {
     try {
+      if (isAutoRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+      
+      setError('');
+
+      // Fetch dashboard stats and user parcels in parallel
       const [statsResponse, parcelsResponse] = await Promise.all([
-        axios.get(`${API_BASE}/dashboard/`),
-        axios.get(`${API_BASE}/user/parcels/`)
+        api.get('/dashboard/'),
+        api.get('/user/parcels/')
       ]);
 
       setStats(statsResponse.data);
       setRecentParcels(parcelsResponse.data.slice(0, 5));
     } catch (err) {
       console.error('Failed to fetch dashboard data:', err);
-      setError('Failed to load dashboard data');
+      const errorMessage = err.response?.data?.detail || 
+                          err.response?.data?.message || 
+                          'Failed to load dashboard data. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -51,18 +71,22 @@ const Dashboard = () => {
     dark: '#FFFFFF',
     cardBg: '#1E1E1E',
     textPrimary: '#FFFFFF',
-    gray: '#424242'
+    gray: '#9E9E9E',
+    lightGray: '#2C2C2C',
+    border: '#333333'
   } : {
     primary: '#0D47A1',
     secondary: '#D32F2F',
     success: '#2E7D32',
     warning: '#F57C00',
     info: '#0097A7',
-    light: '#FFFFFF',
+    light: '#F5F5F5',
     dark: '#212121',
     cardBg: '#FFFFFF',
     textPrimary: '#212121',
-    gray: '#757575'
+    gray: '#757575',
+    lightGray: '#F9F9F9',
+    border: '#E0E0E0'
   };
 
   const statCards = [
@@ -71,53 +95,89 @@ const Dashboard = () => {
       value: stats?.total_parcels || 0,
       icon: <FaBox className="w-6 h-6" />,
       color: colors.primary,
-      bgColor: `${colors.primary}20`
+      bgColor: darkMode ? `${colors.primary}20` : `${colors.primary}15`,
+      description: 'All time'
     },
     {
       title: 'Pending Approval',
       value: stats?.pending_approval || 0,
       icon: <FaClock className="w-6 h-6" />,
       color: colors.warning,
-      bgColor: `${colors.warning}20`
+      bgColor: darkMode ? `${colors.warning}20` : `${colors.warning}15`,
+      description: 'Awaiting review'
     },
     {
-      title: 'Approved Parcels',
+      title: 'Approved',
       value: stats?.approved_parcels || 0,
       icon: <FaCheckCircle className="w-6 h-6" />,
       color: colors.success,
-      bgColor: `${colors.success}20`
+      bgColor: darkMode ? `${colors.success}20` : `${colors.success}15`,
+      description: 'Ready to ship'
     },
     {
       title: 'In Transit',
       value: stats?.in_transit_parcels || 0,
       icon: <FaTruck className="w-6 h-6" />,
       color: colors.info,
-      bgColor: `${colors.info}20`
+      bgColor: darkMode ? `${colors.info}20` : `${colors.info}15`,
+      description: 'On the way'
     },
     {
       title: 'Delivered',
       value: stats?.delivered_parcels || 0,
       icon: <FaCheckCircle className="w-6 h-6" />,
       color: colors.success,
-      bgColor: `${colors.success}20`
+      bgColor: darkMode ? `${colors.success}20` : `${colors.success}15`,
+      description: 'Completed'
     },
   ];
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'Delivered': return colors.success;
-      case 'In_Transit': return colors.info;
-      case 'Approved': return colors.success;
-      case 'Pending': return colors.warning;
-      case 'Rejected': return colors.secondary;
-      default: return colors.gray;
+    const statusMap = {
+      'Delivered': colors.success,
+      'In_Transit': colors.info,
+      'Approved': colors.success,
+      'Pending': colors.warning,
+      'Rejected': colors.secondary,
+      'Cancelled': colors.gray
+    };
+    return statusMap[status] || colors.gray;
+  };
+
+  const formatStatusText = (status) => {
+    return status?.replace(/_/g, ' ') || 'Unknown';
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+    
+    if (diffInHours < 24) {
+      if (diffInHours < 1) return 'Just now';
+      return `${diffInHours}h ago`;
     }
+    
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    });
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center pt-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: colors.primary }}></div>
+      <div className="min-h-screen flex items-center justify-center pt-20" style={{ backgroundColor: colors.light }}>
+        <div className="text-center">
+          <div 
+            className="animate-spin rounded-full h-16 w-16 border-4 mx-auto mb-4" 
+            style={{ 
+              borderColor: colors.border,
+              borderTopColor: colors.primary 
+            }}
+          ></div>
+          <p style={{ color: colors.gray }}>Loading your dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -130,33 +190,65 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
-        >
-          <br></br><br></br>
-          <h1 className="text-3xl font-bold mb-2" style={{ color: colors.textPrimary }}>
-            Welcome back, {user?.first_name || user?.username}!
-          </h1>
-          <p className="text-lg" style={{ color: colors.gray }}>
-            Here's what's happening with your parcels
-          </p>
+        ><br></br><br></br>
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h1 className="text-3xl font-bold mb-2" style={{ color: colors.textPrimary }}>
+                Welcome back, {user?.first_name || user?.username}! 👋
+              </h1>
+              <p className="text-lg" style={{ color: colors.gray }}>
+                Here's what's happening with your parcels today
+              </p>
+            </div>
+            
+            <button
+              onClick={() => fetchDashboardData()}
+              disabled={refreshing}
+              className="px-4 py-2 rounded-lg font-semibold transition-all hover:opacity-80 disabled:opacity-50"
+              style={{ 
+                backgroundColor: colors.primary,
+                color: '#FFFFFF'
+              }}
+            >
+              {refreshing ? '🔄 Refreshing...' : '🔄 Refresh'}
+            </button>
+          </div>
           
           {/* Role Badges */}
-          <div className="flex space-x-3 mt-4">
+          <div className="flex flex-wrap gap-3 mt-4">
+            <span 
+              className="px-4 py-2 rounded-full font-semibold text-sm"
+              style={{ 
+                backgroundColor: darkMode ? colors.cardBg : colors.primary + '15',
+                color: colors.primary,
+                border: `2px solid ${colors.primary}`
+              }}
+            >
+              <FaUser className="inline mr-2" />
+              {stats?.role || 'User'}
+            </span>
             {isDriver && (
               <span 
-                className="px-4 py-2 rounded-full font-bold text-sm"
-                style={{ backgroundColor: colors.warning, color: '#FFFFFF' }}
+                className="px-4 py-2 rounded-full font-semibold text-sm"
+                style={{ 
+                  backgroundColor: colors.warning,
+                  color: '#FFFFFF'
+                }}
               >
                 <FaTruck className="inline mr-2" />
-                {t.driver}
+                Driver
               </span>
             )}
             {isApprover && (
               <span 
-                className="px-4 py-2 rounded-full font-bold text-sm"
-                style={{ backgroundColor: colors.secondary, color: '#FFFFFF' }}
+                className="px-4 py-2 rounded-full font-semibold text-sm"
+                style={{ 
+                  backgroundColor: colors.secondary,
+                  color: '#FFFFFF'
+                }}
               >
                 <FaCheckCircle className="inline mr-2" />
-                {t.approver}
+                Approver
               </span>
             )}
           </div>
@@ -166,14 +258,24 @@ const Dashboard = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mb-6 p-4 rounded-lg flex items-center"
+            className="mb-6 p-4 rounded-lg flex items-start"
             style={{ 
-              backgroundColor: colors.secondary + '20',
-              border: `1px solid ${colors.secondary}`
+              backgroundColor: darkMode ? colors.secondary + '20' : '#FFEBEE',
+              border: `2px solid ${colors.secondary}`
             }}
           >
-            <FaExclamationTriangle className="w-5 h-5 mr-3" style={{ color: colors.secondary }} />
-            <span style={{ color: colors.textPrimary }}>{error}</span>
+            <FaExclamationTriangle className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" style={{ color: colors.secondary }} />
+            <div>
+              <p className="font-semibold mb-1" style={{ color: colors.secondary }}>Error Loading Data</p>
+              <p style={{ color: colors.textPrimary }}>{error}</p>
+              <button
+                onClick={() => fetchDashboardData()}
+                className="mt-2 text-sm font-semibold hover:underline"
+                style={{ color: colors.secondary }}
+              >
+                Try Again →
+              </button>
+            </div>
           </motion.div>
         )}
 
@@ -185,29 +287,31 @@ const Dashboard = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="rounded-xl p-6 shadow-lg"
+              whileHover={{ scale: 1.02 }}
+              className="rounded-xl p-6 shadow-lg cursor-pointer"
               style={{ 
                 backgroundColor: stat.bgColor,
                 border: `2px solid ${stat.color}`
               }}
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-start justify-between mb-3">
                 <div 
-                  className="p-3 rounded-full"
-                  style={{ backgroundColor: stat.color + '40' }}
+                  className="p-3 rounded-lg"
+                  style={{ backgroundColor: stat.color + '30' }}
                 >
                   <div style={{ color: stat.color }}>
                     {stat.icon}
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold" style={{ color: colors.gray }}>
-                    {stat.title}
-                  </p>
-                </div>
               </div>
-              <p className="text-3xl font-bold" style={{ color: colors.textPrimary }}>
+              <p className="text-3xl font-bold mb-1" style={{ color: colors.textPrimary }}>
                 {stat.value}
+              </p>
+              <p className="text-sm font-semibold mb-1" style={{ color: colors.textPrimary }}>
+                {stat.title}
+              </p>
+              <p className="text-xs" style={{ color: colors.gray }}>
+                {stat.description}
               </p>
             </motion.div>
           ))}
@@ -223,16 +327,16 @@ const Dashboard = () => {
           >
             <div className="rounded-xl p-6 shadow-lg" style={{ 
               backgroundColor: colors.cardBg,
-              border: `2px solid ${colors.primary}`
+              border: `2px solid ${colors.border}`
             }}>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold" style={{ color: colors.textPrimary }}>
-                  <FaHistory className="inline mr-2" />
+                <h2 className="text-xl font-bold flex items-center" style={{ color: colors.textPrimary }}>
+                  <FaHistory className="mr-2" />
                   Recent Parcels
                 </h2>
                 <a 
                   href="/track" 
-                  className="text-sm font-semibold hover:underline"
+                  className="text-sm font-semibold hover:underline transition-all"
                   style={{ color: colors.primary }}
                 >
                   View All →
@@ -240,143 +344,183 @@ const Dashboard = () => {
               </div>
 
               {recentParcels.length > 0 ? (
-                <div className="space-y-4">
-                  {recentParcels.map((parcel) => (
+                <div className="space-y-3">
+                  {recentParcels.map((parcel, idx) => (
                     <motion.div
                       key={parcel.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
                       whileHover={{ scale: 1.01 }}
                       className="p-4 rounded-lg transition-all cursor-pointer"
                       style={{ 
                         backgroundColor: colors.lightGray,
-                        border: `1px solid ${colors.gray}20`
+                        border: `1px solid ${colors.border}`
                       }}
+                      onClick={() => window.location.href = `/track/${parcel.tracking_number}`}
                     >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="flex items-center space-x-3 mb-2">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center flex-wrap gap-2 mb-2">
                             <span 
-                              className="px-3 py-1 rounded-full text-xs font-bold"
+                              className="px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap"
                               style={{ 
                                 backgroundColor: getStatusColor(parcel.status),
                                 color: '#FFFFFF'
                               }}
                             >
-                              {parcel.status?.replace('_', ' ')}
+                              {formatStatusText(parcel.status)}
                             </span>
-                            <span className="font-bold" style={{ color: colors.textPrimary }}>
+                            <span className="font-bold text-sm truncate" style={{ color: colors.textPrimary }}>
                               {parcel.tracking_number}
                             </span>
                           </div>
-                          <div className="space-y-1">
-                            <div className="flex items-center text-sm" style={{ color: colors.gray }}>
-                              <FaMapMarkerAlt className="w-3 h-3 mr-2" />
-                              {parcel.pickup_location} → {parcel.delivery_location}
+                          
+                          <div className="space-y-1.5">
+                            <div className="flex items-start text-sm" style={{ color: colors.gray }}>
+                              <FaMapMarkerAlt className="w-3 h-3 mr-2 mt-1 flex-shrink-0" />
+                              <span className="truncate">
+                                {parcel.pickup_location} → {parcel.delivery_location}
+                              </span>
                             </div>
-                            <div className="flex items-center text-sm" style={{ color: colors.gray }}>
-                              <FaBox className="w-3 h-3 mr-2" />
-                              {parcel.weight} kg • {parcel.service_details?.name || 'Standard'}
+                            
+                            <div className="flex items-center flex-wrap gap-3 text-xs" style={{ color: colors.gray }}>
+                              <span className="flex items-center">
+                                <FaWeight className="w-3 h-3 mr-1" />
+                                {parcel.weight} kg
+                              </span>
+                              <span className="flex items-center">
+                                <FaRoute className="w-3 h-3 mr-1" />
+                                {parcel.service_details?.name || 'Standard'}
+                              </span>
+                              {parcel.recipient_phone && (
+                                <span className="flex items-center">
+                                  <FaPhoneAlt className="w-3 h-3 mr-1" />
+                                  {parcel.recipient_phone}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="text-sm" style={{ color: colors.gray }}>
-                            {new Date(parcel.created_at).toLocaleDateString()}
+                        
+                        <div className="text-right flex-shrink-0">
+                          <div className="text-xs mb-2 flex items-center justify-end" style={{ color: colors.gray }}>
+                            <FaCalendarAlt className="w-3 h-3 mr-1" />
+                            {formatDate(parcel.created_at)}
                           </div>
-                          <a 
-                            href={`/track/${parcel.tracking_number}`}
-                            className="text-sm font-semibold hover:underline mt-2 inline-block"
-                            style={{ color: colors.primary }}
+                          <button 
+                            className="text-xs font-semibold hover:underline px-3 py-1 rounded transition-all"
+                            style={{ 
+                              color: colors.primary,
+                              backgroundColor: darkMode ? colors.primary + '20' : colors.primary + '10'
+                            }}
                           >
                             Track →
-                          </a>
+                          </button>
                         </div>
                       </div>
                     </motion.div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12">
-                  <FaBox className="w-16 h-16 mx-auto mb-4" style={{ color: colors.gray }} />
-                  <p className="text-lg" style={{ color: colors.gray }}>No parcels yet</p>
-                  <p className="text-sm mt-2" style={{ color: colors.gray }}>
-                    Book your first delivery to get started
+                <div className="text-center py-16">
+                  <div 
+                    className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: colors.lightGray }}
+                  >
+                    <FaBox className="w-10 h-10" style={{ color: colors.gray }} />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2" style={{ color: colors.textPrimary }}>
+                    No parcels yet
+                  </h3>
+                  <p className="text-sm mb-4" style={{ color: colors.gray }}>
+                    Book your first delivery to get started with our service
                   </p>
                   <a 
                     href="/book" 
-                    className="inline-block mt-4 px-6 py-2 rounded-lg font-bold"
+                    className="inline-block px-6 py-3 rounded-lg font-bold transition-all hover:opacity-90"
                     style={{ 
                       backgroundColor: colors.primary,
                       color: '#FFFFFF'
                     }}
                   >
-                    {t.bookDelivery}
+                    📦 Book Your First Delivery
                   </a>
                 </div>
               )}
             </div>
           </motion.div>
 
-          {/* Quick Actions & Info */}
+          {/* Sidebar */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
+            className="space-y-6"
           >
             {/* Quick Actions */}
-            <div className="rounded-xl p-6 mb-6 shadow-lg" style={{ 
+            <div className="rounded-xl p-6 shadow-lg" style={{ 
               backgroundColor: colors.cardBg,
-              border: `2px solid ${colors.success}`
+              border: `2px solid ${colors.border}`
             }}>
-              <h2 className="text-xl font-bold mb-6" style={{ color: colors.textPrimary }}>
-                <FaChartLine className="inline mr-2" />
+              <h2 className="text-xl font-bold mb-4 flex items-center" style={{ color: colors.textPrimary }}>
+                <FaChartLine className="mr-2" />
                 Quick Actions
               </h2>
               
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 <a 
                   href="/book" 
-                  className="block p-4 rounded-lg font-semibold transition-all hover:scale-[1.02]"
+                  className="block p-3.5 rounded-lg font-semibold text-center transition-all hover:opacity-90 hover:scale-[1.02]"
                   style={{ 
                     backgroundColor: colors.primary,
                     color: '#FFFFFF'
                   }}
                 >
-                  {t.bookDelivery}
+                  📦 Book Delivery
                 </a>
                 
                 <a 
                   href="/track" 
-                  className="block p-4 rounded-lg font-semibold transition-all hover:scale-[1.02]"
+                  className="block p-3.5 rounded-lg font-semibold text-center transition-all hover:opacity-90 hover:scale-[1.02]"
                   style={{ 
                     backgroundColor: colors.info,
                     color: '#FFFFFF'
                   }}
                 >
-                  {t.trackParcel}
+                  🔍 Track Parcel
                 </a>
 
                 {isApprover && (
                   <a 
                     href="/approvals" 
-                    className="block p-4 rounded-lg font-semibold transition-all hover:scale-[1.02]"
+                    className="block p-3.5 rounded-lg font-semibold text-center transition-all hover:opacity-90 hover:scale-[1.02]"
                     style={{ 
                       backgroundColor: colors.secondary,
                       color: '#FFFFFF'
                     }}
                   >
-                    {t.approvals}
+                    ✅ Approvals
+                    {stats?.pending_approval > 0 && (
+                      <span 
+                        className="ml-2 px-2 py-0.5 rounded-full text-xs"
+                        style={{ backgroundColor: 'rgba(255,255,255,0.3)' }}
+                      >
+                        {stats.pending_approval}
+                      </span>
+                    )}
                   </a>
                 )}
 
                 {isDriver && (
                   <a 
                     href="/driver" 
-                    className="block p-4 rounded-lg font-semibold transition-all hover:scale-[1.02]"
+                    className="block p-3.5 rounded-lg font-semibold text-center transition-all hover:opacity-90 hover:scale-[1.02]"
                     style={{ 
                       backgroundColor: colors.warning,
                       color: '#FFFFFF'
                     }}
                   >
-                    {t.driverDashboard}
+                    🚚 Driver Dashboard
                   </a>
                 )}
               </div>
@@ -385,50 +529,59 @@ const Dashboard = () => {
             {/* Account Info */}
             <div className="rounded-xl p-6 shadow-lg" style={{ 
               backgroundColor: colors.cardBg,
-              border: `2px solid ${colors.info}`
+              border: `2px solid ${colors.border}`
             }}>
-              <h2 className="text-xl font-bold mb-6" style={{ color: colors.textPrimary }}>
-                <FaUser className="inline mr-2" />
+              <h2 className="text-xl font-bold mb-4 flex items-center" style={{ color: colors.textPrimary }}>
+                <FaUser className="mr-2" />
                 Account Info
               </h2>
               
-              <div className="space-y-4">
+              <div className="space-y-3.5">
                 <div>
-                  <p className="text-sm" style={{ color: colors.gray }}>Name</p>
+                  <p className="text-xs font-semibold mb-1" style={{ color: colors.gray }}>
+                    FULL NAME
+                  </p>
                   <p className="font-bold" style={{ color: colors.textPrimary }}>
                     {user?.first_name} {user?.last_name}
                   </p>
                 </div>
                 
                 <div>
-                  <p className="text-sm" style={{ color: colors.gray }}>Email</p>
-                  <p className="font-bold" style={{ color: colors.textPrimary }}>
+                  <p className="text-xs font-semibold mb-1" style={{ color: colors.gray }}>
+                    EMAIL ADDRESS
+                  </p>
+                  <p className="font-bold text-sm truncate" style={{ color: colors.textPrimary }}>
                     {user?.email}
                   </p>
                 </div>
                 
                 <div>
-                  <p className="text-sm" style={{ color: colors.gray }}>Username</p>
+                  <p className="text-xs font-semibold mb-1" style={{ color: colors.gray }}>
+                    USERNAME
+                  </p>
                   <p className="font-bold" style={{ color: colors.textPrimary }}>
                     {user?.username}
                   </p>
                 </div>
                 
                 <div>
-                  <p className="text-sm" style={{ color: colors.gray }}>Account Type</p>
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <p className="text-xs font-semibold mb-2" style={{ color: colors.gray }}>
+                    ACCOUNT ROLES
+                  </p>
+                  <div className="flex flex-wrap gap-2">
                     <span 
-                      className="px-3 py-1 rounded-full text-xs font-bold"
+                      className="px-3 py-1.5 rounded-full text-xs font-bold"
                       style={{ 
-                        backgroundColor: colors.success,
-                        color: '#FFFFFF'
+                        backgroundColor: darkMode ? colors.success + '30' : colors.success + '20',
+                        color: colors.success,
+                        border: `1px solid ${colors.success}`
                       }}
                     >
                       {stats?.role || 'User'}
                     </span>
                     {isDriver && (
                       <span 
-                        className="px-3 py-1 rounded-full text-xs font-bold"
+                        className="px-3 py-1.5 rounded-full text-xs font-bold"
                         style={{ 
                           backgroundColor: colors.warning,
                           color: '#FFFFFF'
@@ -439,7 +592,7 @@ const Dashboard = () => {
                     )}
                     {isApprover && (
                       <span 
-                        className="px-3 py-1 rounded-full text-xs font-bold"
+                        className="px-3 py-1.5 rounded-full text-xs font-bold"
                         style={{ 
                           backgroundColor: colors.secondary,
                           color: '#FFFFFF'
