@@ -84,7 +84,7 @@ const Footer = () => {
       subscribeButton: "Subscribe",
       address: "Ubungo Urafiki, Dar es Salaam, Tanzania",
       phone: "+255 693 212 091",
-      email: "issaimcourier@gmail.com",
+      email: "info@imcouriersupply.com",
       hoursWeekdays: "Mon - Fri: 8:00 AM - 6:00 PM",
       hoursSaturday: "Sat: 9:00 AM - 4:00 PM",
       hoursSunday: "Sun: Emergency Services Only",
