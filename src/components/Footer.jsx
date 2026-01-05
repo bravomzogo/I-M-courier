@@ -391,7 +391,7 @@ const Footer = () => {
                 </div>
                 <div>
                   <a 
-                    href="mailto:issaimcourier@gmail.com"
+                    href="mailto:info@imcouriersupply.com"
                     className="font-semibold hover:underline transition-colors duration-300"
                     style={{ color: colors.textPrimary }}
                   >
